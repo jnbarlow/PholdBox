@@ -2,8 +2,10 @@ Pholdbox is a lightweight php framework that includes IOC (inversion of control)
 
 Pholdbox is free for personal or non-profit use.  Any for profit uses will be handled on a case by case basis (super cheap, honest -- just doing it to attach some value to the framework).  Please contact me if you are interested in using the framework in a business capacity -- or for training for that matter.
 
-The framework requires PHP 5.3 and above, so keep that in mind :).  The main system files (in /system) are fairly well documented and should give you a decent idea about how to use it, as will the sample project skeleton and content.  
+The framework requires PEAR and PHP 5.3 and above, so keep that in mind :).  The main system files (in /system) are fairly well documented and should give you a decent idea about how to use it, as will the sample project skeleton and content.  
 
 If anyone wants to contribute, feel free to contact me to get more of a vision on where I'd like to see it go.  I have a few things in the ORM that need finished, but the standard CRUD stuff is in there now.
 
-Note: Any enhancements or contributions you submit to the project are of your own free will, and you do so with no expectation for compensation (just maybe some fame, no fortune).  
+Note: Any modifications to the framework must be submitted for consideration in inclusion to the framework.
+
+Note: Any enhancements/modifications/contributions you submit to the project are done so with no expectation for compensation (just maybe some fame, no fortune).  
