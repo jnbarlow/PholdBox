@@ -1,0 +1,28 @@
+body
+{
+	background-color:#7088AA;
+}
+
+#content-container
+{
+	width:900px;
+	margin:0px auto;
+	background-color:white;
+	border:1px solid black;
+}
+
+#header
+{
+	width:880px;
+	height:100px;
+	padding:10px;
+	text-align:center;
+	background-color:#EEEEEE;
+	border-bottom:1px solid black;
+}
+
+#content
+{
+	width:880px;
+	padding:10px;
+}
