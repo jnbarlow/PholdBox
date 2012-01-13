@@ -76,7 +76,14 @@ require_once("MDB2.php");
  	*/
  	public function getValue($key)
  	{
- 		return $this->ORM["values"][$key];
+ 		if(array_key_exists($key, $this->ORM))
+ 		{ 
+ 			return $this->ORM["values"][$key];
+ 		}
+ 		else
+ 		{
+ 			return '';
+ 		}
  	}
  	
  	/*
@@ -399,10 +406,11 @@ require_once("MDB2.php");
  		$updateSQL = "";
  		$insertCount = 0;
  		$updateCount = 0;
+ 		$result = array();
  		
  		foreach($items as $item)
  		{
-	 		if(array_key_exists($item->getId() != ""))
+	 		if($item->getId() != "")
 	 		{
 	 			
 	 			//if the id is defined, update
@@ -413,37 +421,22 @@ require_once("MDB2.php");
 	 		{
 	 			if($insertCount == 0)
 	 			{
-	 				$insertSQL = $item->generateBulkInsert() . " ";
+	 				$insertSQL = $item->generateBulkInsert(null) . " ";
+	 			}
+	 			else
+	 			{
+	 				$insertSQL = $insertSQL . "UNION ALL ";
 	 			}
 	 	
 	 			$insertSQL = $insertSQL . $item->generateBulkSelect() . " ";
 	 			$insertCount++;
-	 			
-	 			if($insertCount < $this->SYSTEM["dbBatchSize"])
-	 			{
-	 				$insertSQL = $insertSQL . "UNION ALL ";
-	 			}
-	 			else
-	 			{
-	 				$insertCount = 0;
-	 				$insertSQL = $insertSQL . ";";
-	 				$result = $this->db->exec($insertSQL);
- 		
-			 		// Always check that result is not an error
-					if (\PEAR::isError($result)) {
-					    die($result->getMessage());
-					}
-	 			}
 	 		}
 	 	}
-	 	//todo: remove final union all
- 		print($insertSQL);
- 		
- 		//cleanup section, run these if there are any loop iterations that didn't make it in
- 		//the first time.
+	 	$insertSQL = $insertSQL . ";";
+	 
  		if($insertCount != 0)
  		{
-	 		$result = $this->db->exec($insertSQL);
+	 		$result["insert"] = $this->db->exec($insertSQL);
 	 		
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
@@ -453,14 +446,14 @@ require_once("MDB2.php");
 		
 		if($updateCount != 0)
 		{
-			$result = $this->db->exec($updateSQL);
+			$result{"update"} = $this->db->exec($updateSQL);
 	 		
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
 			}
 		}
- 		//return $insertSQL;
+ 		
  	}
  }
 ?>
