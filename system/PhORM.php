@@ -76,7 +76,7 @@ require_once("MDB2.php");
  	*/
  	public function getValue($key)
  	{
- 		if(array_key_exists($key, $this->ORM))
+ 		if(array_key_exists($key, $this->ORM["values"]))
  		{ 
  			return $this->ORM["values"][$key];
  		}
@@ -121,6 +121,15 @@ require_once("MDB2.php");
  				parent::__call($name, $arguments);
  			}
  		}
+ 	}
+ 	
+ 	/*
+ 	 * Name: getPhormTable
+ 	 * Does: returns the table this object is associated with.
+ 	 */
+ 	public function getPhORMTable()
+ 	{
+ 		return $this->ORM["tableName"];
  	}
 
 	/*
@@ -274,7 +283,8 @@ require_once("MDB2.php");
  		
  		if($tempTableKey != null)
  		{
- 			//TODO: create temp table from $tempTableKey, add to sql. Set table name to temp table key.
+ 			//TODO: create temp table from $tempTableKey, add to sql.
+ 			$target = $tempTableKey;
  		}
  		else
  		{
@@ -407,35 +417,39 @@ require_once("MDB2.php");
  		$insertCount = 0;
  		$updateCount = 0;
  		$result = array();
+ 		$table = "";
+ 		$tempTableKey = "TempTableKey";
  		
  		foreach($items as $item)
  		{
+ 			//check to make sure the collection is all of the same type
+ 			if($table == '')
+ 			{
+ 				$table = $item->getPhORMTable();
+ 			}
+ 			else if($table != $item->getPhORMTable())
+ 			{
+ 				die("PhORM Error: Object array in bulkSave not of the same type.");
+ 			}
+ 			
 	 		if($item->getId() != "")
 	 		{
-	 			
+	 			$updateSQL .= $this->generateBulkSaveInsert($updateCount, $item, $tempTableKey);
+	 			$updateCount++;
 	 			//if the id is defined, update
 	 			//$sql = $this->generateUpdate();
 	 		}
 	 		//else, if the id is not defined, insert.
 	 		else
 	 		{
-	 			if($insertCount == 0)
-	 			{
-	 				$insertSQL = $item->generateBulkInsert(null) . " ";
-	 			}
-	 			else
-	 			{
-	 				$insertSQL = $insertSQL . "UNION ALL ";
-	 			}
-	 	
-	 			$insertSQL = $insertSQL . $item->generateBulkSelect() . " ";
-	 			$insertCount++;
+	 			$insertSQL .= $this->generateBulkSaveInsert($insertCount, $item);
+	 			//$insertCount++;
 	 		}
 	 	}
-	 	$insertSQL = $insertSQL . ";";
-	 
+	    
  		if($insertCount != 0)
  		{
+ 			$insertSQL .= ";";
 	 		$result["insert"] = $this->db->exec($insertSQL);
 	 		
 	 		// Always check that result is not an error
@@ -446,14 +460,42 @@ require_once("MDB2.php");
 		
 		if($updateCount != 0)
 		{
-			$result{"update"} = $this->db->exec($updateSQL);
+			$updateSQL .= ";";
+			$updateSQL .= $this->generateBulkUpdateJoin($tempTableKey, $table); 
+			print($updateSQL);
+			/*$result{"update"} = $this->db->exec($updateSQL);
 	 		
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
-			}
+			}*/
 		}
  		
+ 	}
+ 	
+ 	protected function generateBulkSaveInsert($index, $item, $tempTableKey = null)
+ 	{
+ 		$sql = '';
+ 		if($index == 0)
+		{
+			$sql = $item->generateBulkInsert($tempTableKey) . " ";
+		}
+		else
+		{
+			$sql = $sql . "UNION ALL ";
+		}
+
+		$sql = $sql . $item->generateBulkSelect() . " ";
+		return $sql;
+ 	}
+ 	
+ 	protected function generateBulkUpdateJoin($tempTableKey, $itemTable)
+ 	{
+ 		$sql = "UPDATE " . $itemTable . " oldTable ";
+ 		$sql .= "INNER JOIN " . $tempTableKey . " newTable ";
+ 		$sql .= "   ON oldTable.id = newTable.id;";
+ 		$sql .= "DROP TABLE " . $tempTableKey . ";";
+ 		return $sql;
  	}
  }
 ?>
