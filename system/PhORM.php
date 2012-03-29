@@ -55,7 +55,7 @@ require_once("MDB2.php");
  		parent::__construct();
  	}
  	
- 	/*
+ 	/**
  		Name: setValue
  		
  		Does: Sets value of key into the VO
@@ -67,7 +67,7 @@ require_once("MDB2.php");
  		$this->ORM["values"][$key] = $value;
  	}
  	
- 	/*
+ 	/**
  		Name: getValue
  		
  		Does: Gets value of key into the VO
@@ -86,7 +86,7 @@ require_once("MDB2.php");
  		}
  	}
  	
- 	/*
+ 	/**
  		Name: __call
  		
  		Does: This is a php 5 "magic" function that gets called if you call a function that doesn't exist.
@@ -123,7 +123,7 @@ require_once("MDB2.php");
  		}
  	}
  	
- 	/*
+ 	/**
  	 * Name: getPhormTable
  	 * Does: returns the table this object is associated with.
  	 */
@@ -132,7 +132,7 @@ require_once("MDB2.php");
  		return $this->ORM["tableName"];
  	}
 
-	/*
+	/**
 		Name: generateSelect()
 		
 		Does: Generates a select statement based on the values in the DB object.  The where clause is 
@@ -283,7 +283,7 @@ require_once("MDB2.php");
  		
  		if($tempTableKey != null)
  		{
- 			//TODO: create temp table from $tempTableKey, add to sql.
+ 			$sql .= $this->generateTempTableSQL($tempTableKey);
  			$target = $tempTableKey;
  		}
  		else
@@ -296,7 +296,7 @@ require_once("MDB2.php");
  		$colNames = " (";
  		foreach($this->ORM["columns"] as $column)
  		{	
- 			if($column != "id")
+ 			if($column != "id" || $tempTableKey != null)
  			{
  				//sanity check
  				if(!array_key_exists($column, $this->ORM["values"]))
@@ -321,17 +321,46 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
- 	/*
- 	 * Name: generateBulkSelect
- 	 * Does: crreates the select statements needed for bulk inserting
+ 	/**
+ 	 * Name: generateTempTableSQL
+ 	 * Does: Generates the temp table creation SQL for whatever DB server you are using
+ 	 * @param string tempTableKey - name of temporary table.
+ 	 * @return string SQL to create temp table.
  	 */
- 	protected function generateBulkSelect()
+ 	protected function generateTempTableSQL($tempTableKey)
+ 	{	
+ 		$sql = "";
+ 		//TODO: do some fancy switching here based on db type
+ 		
+ 		//MYSQL
+ 		$sql = "CREATE TEMPORARY TABLE ". $tempTableKey . " (";
+    	$count = 0;
+    	
+    	foreach($this->ORM["columns"] as $column)
+    	{
+    		if($count != 0)
+    		{ 
+    			$sql .= ", ";
+    		}
+    		$sql .= $column . " " . $this->ORM["types"][$count];
+    		$count++;
+    	}
+    	$sql .= ");";
+   
+ 		return $sql;	
+ 	}
+ 	
+ 	/**
+ 	 * Name: generateBulkSelect
+ 	 * Does: creates the select statements needed for bulk inserting
+ 	 */
+ 	protected function generateBulkSelect($tempTableKey)
  	{
  		$sql = "Select ";
  		$first = true;
  		foreach($this->ORM["columns"] as $column)
  		{	
- 			if($column != "id")
+ 			if($column != "id" || $tempTableKey != null)
  			{
  				//sanity check
  				if(!array_key_exists($column, $this->ORM["values"]))
@@ -355,7 +384,7 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
- 	/*
+ 	/**
  	 * Name: Save
  	 * 
  	 * Does: Saves the object based on the values.  If an ID is given, it will update instead 
@@ -384,7 +413,7 @@ require_once("MDB2.php");
  		return $result;
  	}
  	
- 	/*
+ 	/**
  	 * Name: Delete
  	 * 
  	 * Does: removes record from db based on the values in the object
@@ -443,7 +472,7 @@ require_once("MDB2.php");
 	 		else
 	 		{
 	 			$insertSQL .= $this->generateBulkSaveInsert($insertCount, $item);
-	 			//$insertCount++;
+	 			$insertCount++;
 	 		}
 	 	}
 	    
@@ -451,7 +480,7 @@ require_once("MDB2.php");
  		{
  			$insertSQL .= ";";
 	 		$result["insert"] = $this->db->exec($insertSQL);
-	 		
+	 		print($insertSQL);
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
@@ -485,16 +514,30 @@ require_once("MDB2.php");
 			$sql = $sql . "UNION ALL ";
 		}
 
-		$sql = $sql . $item->generateBulkSelect() . " ";
+		$sql = $sql . $item->generateBulkSelect($tempTableKey) . " ";
 		return $sql;
  	}
  	
  	protected function generateBulkUpdateJoin($tempTableKey, $itemTable)
  	{
+ 		$first = true;
  		$sql = "UPDATE " . $itemTable . " oldTable ";
  		$sql .= "INNER JOIN " . $tempTableKey . " newTable ";
- 		$sql .= "   ON oldTable.id = newTable.id;";
- 		$sql .= "DROP TABLE " . $tempTableKey . ";";
+ 		$sql .= "   ON oldTable.id = newTable.id";
+ 		$sql .= "   SET ";
+ 		foreach($this->ORM["columns"] as $column)
+ 		{
+ 			if(!$first)
+ 			{
+ 				$sql .= ", ";
+ 			}
+ 			if(isset($this->ORM["values"][$column]))
+ 			{
+ 				$sql .= "oldTable." . $column . " = " . "newTable." . $column;
+ 				$first = false;
+ 			}
+ 		}
+ 		$sql .= ";DROP TABLE " . $tempTableKey . ";";
  		return $sql;
  	}
  }
