@@ -157,6 +157,28 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
+ 	/**
+ 	 * query
+ 	 * 
+ 	 * This is a wrapper to the underlying PEAR db query function so that you can have custom queries in objects.
+ 	 * The queries should be in functions named "qMyCustomQueryName".  This is where you put the custom SQL and call
+ 	 * $this->query($sql);
+ 	 * 
+ 	 * @param string $sql SQL string to execute
+ 	 * @return Object DB object with the result of the query
+ 	 */
+ 	public function query($sql)
+ 	{
+ 		$result = $this->db->query($sql);
+ 		
+ 		// Always check that result is not an error
+		if (\PEAR::isError($result)) {
+		    die($result->getMessage());
+		}
+		
+		return $result;
+ 	}
+ 	
  	//this function assumes 1 row is being returned, and will use the fist one it finds.
  	public function load()
  	{
