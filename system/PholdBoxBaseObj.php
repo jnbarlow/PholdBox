@@ -121,7 +121,7 @@ class PholdBoxBaseObj
 				
 				if(file_exists($model))
 				{
-					include($model);
+					include_once($model);
 				}
 				else
 				{
