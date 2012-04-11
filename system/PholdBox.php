@@ -6,6 +6,8 @@ require("PholdBoxBaseObj.php");
 require("Event.php");
 require("PhORM.php");
 
+session_start();
+
 $VERSION = "1.0 beta";
 
 $RCProcessor = new system\RCProcessor();
