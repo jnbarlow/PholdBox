@@ -179,12 +179,22 @@ require_once("MDB2.php");
 		return $result;
  	}
  	
- 	//this function assumes 1 row is being returned, and will use the fist one it finds.
+ 	/**
+ 	 * load
+ 	 * 
+ 	 * This function loads one object if an ID is supplied, otherwise it will do a
+ 	 * bulk search across the db and return an array of objects
+ 	 * 
+ 	 * @return array Array of matching objects if in bulk mode.
+ 	 */
  	public function load()
  	{
+ 		$bulk = false;
+ 		$returnArray = array();
+ 		
  		if($this->getId() == '')
  		{
- 			die("PhORM Error: id must be specified");
+ 			$bulk = true;
  		}
  		
  		$sql = $this->generateSelect();	
@@ -197,20 +207,43 @@ require_once("MDB2.php");
 		}
 		
 		//load object
-		if($result->numRows() > 0)
+		if($result->numRows() == 1)
 		{
 			$row = $result->fetchRow();
-			$colIndex = 0;
-			foreach($result->getColumnNames(true) as $column)
+	
+			$resultCols = $result->getColumnNames();
+			foreach($this->ORM["columns"] as $column)
 			{
-				$this->setValue($column, $row[$colIndex]);
-				$colIndex++;
+				$this->setValue($column, $row[$resultCols[strtolower($column)]]);
 			}
+ 		}
+ 		//load objects
+ 		else if($result->numRows() > 1)
+ 		{
+ 			$class= get_class($this);
+ 			$row = $result->fetchRow();
+ 			while($row != null){
+ 				
+				$obj = new $class;
+ 				
+				$resultCols = $result->getColumnNames();
+				foreach($this->ORM["columns"] as $column)
+				{
+					$obj->setValue($column, $row[$resultCols[strtolower($column)]]);
+				}
+				array_push($returnArray, $obj);
+				$row = $result->fetchRow();
+ 			}
  		}
  		else
  		{
- 			$this->setValue("id", "");
- 		} 		
+ 			foreach($this->ORM["columns"] as $column){
+ 				$this->setValue($column, "");
+ 			}
+ 			
+ 		} 	
+ 		
+ 		return $returnArray;	
  	}
  	
  	protected function generateUpdate()
