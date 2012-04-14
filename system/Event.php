@@ -55,8 +55,7 @@ class Event extends PholdBoxBaseObj
 	*/
 	public function renderView()
 	{
-		//Adds current RC scope back to globals, so that the view can access it at $rc
-		$GLOBALS["rc"] = $this->rc;
+		$rc = $this->rc;
 		if($this->useLayout)
 		{
 			$this->renderLayout("views/" . $this->view . ".php");

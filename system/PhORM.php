@@ -237,13 +237,29 @@ require_once("MDB2.php");
  		}
  		else
  		{
- 			foreach($this->ORM["columns"] as $column){
- 				$this->setValue($column, "");
+ 			foreach($this->ORM["columns"] as $column)
+ 			{
+ 				if($this->getValue($column) == null)
+ 				{
+ 					$this->setValue($column, "");	
+ 				}
  			}
  			
  		} 	
  		
  		return $returnArray;	
+ 	}
+ 	
+ 	/**
+ 	 * clear
+ 	 * clears an object to be reused
+ 	 */
+ 	public function clear()
+ 	{
+ 		foreach($this->ORM["columns"] as $column)
+ 		{
+ 			$this->setValue($column, "");	
+ 		}
  	}
  	
  	protected function generateUpdate()
