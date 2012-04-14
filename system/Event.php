@@ -20,10 +20,9 @@ class Event extends PholdBoxBaseObj
 	
 	public function __construct($layout)
 	{
-		$this->layout = $layout;
-		$this->rc = $GLOBALS["rc"];
-		$this->useLayout = true;
 		parent::__construct();
+		$this->layout = $layout;
+		$this->useLayout = true;
 	}
 
 	/* 

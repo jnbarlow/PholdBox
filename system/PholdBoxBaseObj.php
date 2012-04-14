@@ -13,7 +13,7 @@ namespace system;
 class PholdBoxBaseObj
 {
 	protected $instance = array();
-	protected $SYSTEM = array();
+	static protected $SYSTEM = array();
 	protected $IOC;
 	/*
 		Constructor:  Child classes need to call this through parent::__construct() to 
@@ -21,6 +21,8 @@ class PholdBoxBaseObj
 	*/
 	public function __construct()
 	{
+		$this->SYSTEM = $GLOBALS["SYSTEM"];
+		$this->rc = $GLOBALS["rc"];
 		$this->processIOC();
 	}
 	

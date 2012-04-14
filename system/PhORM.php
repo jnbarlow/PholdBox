@@ -35,8 +35,8 @@ require_once("MDB2.php");
  
  	function __construct()
  	{
+ 		parent::__construct();
  		$current_dsn="";
- 		$this->SYSTEM = $GLOBALS["SYSTEM"];
  		if(array_key_exists("dsn", $this->ORM) && $this->ORM["dsn"] != "")
  		{
  			$current_dsn = $this->ORM["dsn"];
@@ -52,7 +52,7 @@ require_once("MDB2.php");
  		{
  			die($this->db->getMessage());
  		}
- 		parent::__construct();
+ 		
  	}
  	
  	/*
