@@ -92,6 +92,7 @@ class Event extends PholdBoxBaseObj
 		}
 		
 		$this->evtObj = new $resolved->evtClass($this->layout);
+		$this->evtObj->preEvent();
 		$this->evtObj->$pathArray[1]();
 		
 	}
@@ -141,5 +142,14 @@ class Event extends PholdBoxBaseObj
 	  {
 	  		header("Location: ?event=" . $event);
 	  }
+	  
+	  /**
+	   * preEvent
+	   * event that gets ran from subclasses before other events in that class
+	   */
+	   public function preEvent()
+	   {
+	   		//this intentionally blank, must be set up in the child class to use.
+	   }
 }
 ?>
