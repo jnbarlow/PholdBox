@@ -21,4 +21,8 @@ $SYSTEM["dsn"]["pholdbox"]["connection_string"] = "mysql://CS120:isfun@localhost
 //Default Layout/view
 $SYSTEM["default_layout"] = "layout.main";
 $SYSTEM["default_event"] = "main.home"; 
+
+//per app settings go here
+$SYSTEM["app"]["mysetting"] = "PholdBox Rocks!";
+
 ?>
