@@ -131,5 +131,15 @@ class Event extends PholdBoxBaseObj
 	 {
 	 	$this->rc[$key] = $value;
 	 }
+	 
+	 /**
+	  * runEvent
+	  * Runs an event
+	  * @parm string event Event to run in dot notation
+	  */
+	  public function runEvent($event)
+	  {
+	  		header("Location: ?event=" . $event);
+	  }
 }
 ?>
