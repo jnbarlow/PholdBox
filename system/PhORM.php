@@ -144,7 +144,7 @@ require_once("MDB2.php");
  				{
  					$where = $where . " and ";
  				}
- 				$where = $where . $column . "='" . $this->ORM["values"][$column] . "'";
+ 				$where = $where . $column . "='" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
  				$wFirst = false;
  			}
  		}
@@ -282,7 +282,7 @@ require_once("MDB2.php");
 	 			{
 	 			 	$sql = $sql . ", ";
 	 			}
-	 			$sql = $sql . $column . " = '" . $this->ORM["values"][$column] . "'";
+	 			$sql = $sql . $column . " = '" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
 	 			$first=false;
  			}
  			
@@ -318,7 +318,7 @@ require_once("MDB2.php");
 	 			
 	 			//$colNames = $colNames . "'" . $column . "'";
 	 			$colNames = $colNames . $column;
-	 			$values = $values . "'" . $this->ORM["values"][$column] . "'";
+	 			$values = $values . "'" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
 	 			$first=false;
  			}
  			
@@ -453,7 +453,7 @@ require_once("MDB2.php");
 			print(get_class($this) . " - id is undefined");
 			exit;
 		}
- 		$sql = $sql . " where id='". $this->ORM["values"]["id"] ."'";
+ 		$sql = $sql . " where id='". str_replace("'", "''", $this->ORM["values"]["id"]) ."'";
  				
  		print($sql);
  	}
