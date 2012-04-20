@@ -216,6 +216,7 @@ require_once("MDB2.php");
 			{
 				$this->setValue($column, $row[$resultCols[strtolower($column)]]);
 			}
+			array_push($returnArray, &$this);
  		}
  		//load objects
  		else if($result->numRows() > 1)
