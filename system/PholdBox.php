@@ -4,6 +4,7 @@ require("config/config.php");
 require("RCProcessor.php");
 require("PholdBoxBaseObj.php");
 require("Event.php");
+require("Model.php");
 require("PhORM.php");
 
 session_start();
