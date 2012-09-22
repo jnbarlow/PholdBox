@@ -11,13 +11,26 @@ namespace system;
  */
 class Event extends PholdBoxBaseObj
 {
+	/**
+	 * @property string layout The current layout that is being used
+	 */
 	protected $layout;
-	protected $rc;
+		
+	/**
+	 * @property string view The current view that is being used
+	 */
 	protected $view;
-	protected $evtObj;
-	protected $useLayout;
-	protected $IOC;
 	
+	/**
+	 * @property object evtObj The dynamically created object based on the event definition in the url
+	 */
+	protected $evtObj;
+	
+	/**
+	 * @property boolean useLayout Bool to tell the system to render the view with or without a layout, used in setView()
+	 */
+	protected $useLayout;
+		
 	public function __construct($layout)
 	{
 		parent::__construct();

@@ -30,7 +30,21 @@ require_once("MDB2.php");
  //TODO: set up links logic
  class PhORM extends PholdBoxBaseObj
  {
+ 	/**
+ 	 * @property array ORM This describes the database you wish to use for the object.
+ 	 * 
+ 	 * 	protected $ORM = array("tableName"=>"test",
+	 *					   "dsn"=>"",
+	 *					   "columns"=>array("id", "name", "title"),
+	 *					   "types"=>array("int(1)", "varchar(25)", "varchar(25)"),
+	 *					   "values"=>array());
+ 	 * 
+ 	 */
  	protected $ORM = array();
+ 	
+ 	/**
+ 	 * @property object db Database Object
+ 	 */
  	protected $db = null;
  
  	function __construct()

@@ -12,10 +12,28 @@ namespace system;
 
 class PholdBoxBaseObj
 {
+	/**
+	 * @property array instance This is the array in which all IOC objects are stored 
+	 */
 	protected $instance = array();
+	
+	/**
+	 * @property array SYSTEM Static array of system variables
+	 */
 	static protected $SYSTEM = array();
+	
+	/**
+	 * @property array IOC Array of text fields describing the objects you wish to inject
+	 */
 	protected $IOC;
-	/*
+	
+	/**
+	 * @property array rc This is the Request collection. This object is exposed to the view layer, so that any data rollup can happen
+	 * here.  All post/get variables are shoved into this as well, following the rule that POST variables win over GET.
+	 */
+	protected $rc;	
+	
+	/**
 		Constructor:  Child classes need to call this through parent::__construct() to 
 		get IOC elemets processed;
 	*/
@@ -26,7 +44,7 @@ class PholdBoxBaseObj
 		$this->processIOC();
 	}
 	
-	/*
+	/**
 		Name: dotResolver
 		
 		Does: This is the dot resolver that is used to convert handler and model 
@@ -87,7 +105,7 @@ class PholdBoxBaseObj
 		return $stReturn;
 	}
 	
-	/*
+	/**
 		Name: processIOC
 		
 		Does: This function allows for Spring style object injection.  It works
