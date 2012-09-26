@@ -8,6 +8,9 @@
 $SYSTEM = array();
 $GLOBALS["SYSTEM"] = $SYSTEM;
 
+//Debug Output
+$SYSTEM["debug"] = true;
+
 //Datasources
 $SYSTEM["dbBatchSize"] = 100;
 $SYSTEM["dsn"] = array();

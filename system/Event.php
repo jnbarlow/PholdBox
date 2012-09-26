@@ -102,9 +102,45 @@ class Event extends PholdBoxBaseObj
 			exit;
 		}
 		
+		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
 		$this->evtObj = new $resolved->evtClass($this->layout);
+		
+		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack($this->evtObj, "Event", microtime() - $startTime);
+		}
+		
+		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
 		$this->evtObj->preEvent();
+		
+		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack($resolved->evtClass . ".preEvent()", "Function", microtime() - $startTime);
+		}
+		
+		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+			$this->pushDebugStack($resolved->evtClass . "." . $pathArray[1] . "() Start", "Function", "");
+		}
 		$this->evtObj->$pathArray[1]();
+		
+		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack($resolved->evtClass . "." . $pathArray[1] . "() End", "Function", microtime() - $startTime);
+		}
 		
 	}
 	
@@ -161,6 +197,85 @@ class Event extends PholdBoxBaseObj
 	   public function preEvent()
 	   {
 	   		//this intentionally blank, must be set up in the child class to use.
+	   }
+	   
+	  /**
+	   * renderDebugger
+	   * Renders the debug output for this event. -- self contained HTML in this function.
+	   */
+	   public function renderDebugger()
+	   {
+	   		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]) && $this->useLayout)
+	   		{
+	   			$html  = "<script>";
+	   			$html .= 	"function toggleDebugPanel(node){";
+	   			$html .= 		"var domNode = document.getElementById(node);";
+	   			$html .=    	"if(domNode.style.display == 'block'){";
+	   			$html .=			"domNode.style.display = 'none';";
+	   			$html .=		"}";
+	   			$html .=		"else{";
+	   			$html .=			"domNode.style.display = 'block'";
+	   			$html .=		"}";
+	   			$html .=	"}";
+	   			$html .= "</script>";
+	   			$html .= "<div style='clear:both;background-color:#dddddd;padding:5px;margin-top:10px'>";
+	   			$html .=	"<h3>PholdBox Debugger</h3>";
+	   			$html .=	"<p>PholdBox Version: " . $this->rc["PB_VERSION"] . "<br>";
+	   			$html .= 	"Template Rendering Time: " . number_format(($this->SYSTEM["debugger"]["endTime"] - $this->SYSTEM["debugger"]["startTime"]), 4) . "s</p>";  
+	   			$html .= 	"<div style='background-color:#eeeeee;margin:0px 5px;padding:5px;'>";
+	   			$html .=		"<span style='cursor:pointer' onclick='toggleDebugPanel(\"debugRC\")'>Request Collection</span><br>";
+	   			$html .=		"<pre id='debugRC' style='background-color:white;display:none'>" . $this->varDumpToString($this->rc) . "</pre>";	   		
+	   			$html .=	"</div>";
+	   			
+	   			$html .=	"<h3>User Debug Trace</h3>";
+	   			$html .=	"<div>";
+	   			$counter = 0;
+	   			foreach($this->SYSTEM["debugger"]["userStack"] as $item)
+	   			{	
+		   			$html .= 	"<div style='background-color:#eeeeee;margin:2px 5px;padding:5px;'>";
+		   			$html .=		"<span style='cursor:pointer;clear:both' onclick='toggleDebugPanel(\"debug" . $counter . "\")'>" . $item["name"] . "</span><br>";
+		   			$html .=		"<pre id='debug" . $counter . "' style='background-color:white;display:none'>" . $this->varDumpToString($item["object"]) . "</pre>";	   		
+		   			$html .=	"</div>";
+		   				   			
+		   			$counter++;
+	   			}
+	   			$html .=	"</div>";
+	   			
+	   			$html .=	"<h3>Stack Trace</h3>";
+	   			$html .=	"<div>";
+	   			$counter = 0;
+	   			$nesting = 1;
+	   			foreach($this->SYSTEM["debugger"]["stack"] as $item)
+	   			{
+	   				if(preg_match("/\(\) End/", $item["name"])){
+		   				$nesting--;
+		   			}
+					if($nesting > 1){
+						$tickerColor = "#999999";
+					}		   		
+					else
+					{
+						$tickerColor = "#000000";
+					}
+					$timing = "";
+					
+					if($item["timing"] != ""){
+						$timing = number_format($item["timing"], 4) . "s";
+					}
+		   			$html .= 	"<div style='background-color:#eeeeee;margin:2px 5px 2px " . $nesting * 10 . "px;padding:5px;'>";
+		   			$html .=		"<span style='cursor:pointer;clear:both' onclick='toggleDebugPanel(\"debug" . $counter . "\")'>" . $item["type"] . ": " . $item["name"] . "</span><span style='float:right;color:" . $tickerColor . "'>" . $timing . "</span><br>";
+		   			$html .=		"<pre id='debug" . $counter . "' style='background-color:white;display:none'>" . $this->varDumpToString($item["object"]) . "</pre>";	   		
+		   			$html .=	"</div>";
+		   			if(preg_match("/\(\) Start/", $item["name"])){
+		   				$nesting++;
+		   			}
+		   			
+		   			$counter++;
+	   			}
+	   			$html .=	"</div>";
+	   			$html .= "</div>";
+	   			echo $html;
+	   		}
 	   }
 }
 ?>

@@ -39,7 +39,7 @@ class PholdBoxBaseObj
 	*/
 	public function __construct()
 	{
-		$this->SYSTEM = $GLOBALS["SYSTEM"];
+		$this->SYSTEM = &$GLOBALS["SYSTEM"];
 		$this->rc = $GLOBALS["rc"];
 		$this->processIOC();
 	}
@@ -148,7 +148,20 @@ class PholdBoxBaseObj
 					print("Invalid Model: $object");
 					exit;
 				}
-				$this->instance[$resolved->modelClass] = new $resolved->modelClass;	
+				
+				//capture debug timing
+				if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+	   			{
+	   				$startTime = microtime();
+	   			}
+				
+				$this->instance[$resolved->modelClass] = new $resolved->modelClass;
+				
+				//capture debug output
+				if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+	   			{	
+					$this->pushDebugStack($this->instance[$resolved->modelClass], "Model", microtime() - $startTime);
+	   			}
 			}
 		}
 	} 
@@ -158,5 +171,48 @@ class PholdBoxBaseObj
  	{
  		print("Call fired: ". $name . "<br>");
  	}
+ 	
+	/**
+	* varDumpToString
+	* private util function to capture the output of var_dump
+	*/
+	protected function varDumpToString ($var)
+	{
+		ob_start();
+		var_dump($var);
+		$result = ob_get_clean();
+		return $result;
+	}
+	
+	/**
+	 * pushDebugStack
+	 * Pushes an object to the debug stack trace.
+	 * @param mixed $obj Object being pushed to the stack
+	 * @param string $type
+	 * @param mixed $time Timing info - or ""
+	 */
+	protected function pushDebugStack ($obj, $type, $time)
+	{
+		if($type == "Function")
+		{
+			$this->SYSTEM["debugger"]["stack"][] = array("name" => $obj, "object" => null, "type" => $type, "timing" => $time);
+		}
+		else
+		{
+			$this->SYSTEM["debugger"]["stack"][] = array("name" => get_class($obj), "object" => $obj, "type" => $type, "timing" => $time);	
+		}
+		
+	}
+	
+	/**
+	 * debug
+	 * Allows user to push strings/objects to the user debug stack to be dumped
+	 * @param mixed $obj Object to dump
+	 * @param string $label Label for your object
+	 */
+	 public function debug($obj, $label = "unnamed")
+	 {
+	 	$this->SYSTEM["debugger"]["userStack"][] = array("name" => $label, "object" => $obj);
+	 }
 }
 ?>

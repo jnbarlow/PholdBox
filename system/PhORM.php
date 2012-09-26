@@ -103,7 +103,7 @@ require_once("MDB2.php");
  		Returns: db value of object, or whatever the parent decides to return (could be an object)
  	*/
  	public function __call($name, $arguments)
- 	{
+ 	{ 				
  		$action = substr($name, 0, 3);
  		$prop = lcfirst(substr($name, 3));
  		if($action == "get")
@@ -127,7 +127,7 @@ require_once("MDB2.php");
  			{
  				parent::__call($name, $arguments);
  			}
- 		}
+ 		} 		
  	}
 
 	/*
@@ -203,6 +203,12 @@ require_once("MDB2.php");
  	 */
  	public function load()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
  		$bulk = false;
  		$returnArray = array();
  		
@@ -261,7 +267,11 @@ require_once("MDB2.php");
  			}
  			
  		} 	
- 		
+ 		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".load()", "Function", microtime() - $startTime);
+		}
  		return $returnArray;	
  	}
  	
@@ -432,6 +442,12 @@ require_once("MDB2.php");
  	 */
  	public function save()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
  		$sql = "";
  		if(array_key_exists("id", $this->ORM["values"]) && $this->ORM["values"]["id"] != "")
  		{
@@ -450,6 +466,11 @@ require_once("MDB2.php");
 		if (\PEAR::isError($result)) {
 		    die($result->getMessage());
 		}
+		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".save()", "Function", microtime() - $startTime);
+		}
  		return $result;
  	}
  	
@@ -460,6 +481,12 @@ require_once("MDB2.php");
  	 */
  	public function delete()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
  		$sql = "delete from ". $this->ORM["tableName"];
  		//sanity check
  		
@@ -469,7 +496,12 @@ require_once("MDB2.php");
 			exit;
 		}
  		$sql = $sql . " where id='". str_replace("'", "''", $this->ORM["values"]["id"]) ."'";
- 				
+ 		
+ 		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".delete()", "Function", microtime() - $startTime);
+		}	
  		print($sql);
  	}
  	
