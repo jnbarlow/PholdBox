@@ -26,6 +26,5 @@ else
 {	
 	$event->processEvent($SYSTEM["default_event"]);
 }
-$SYSTEM["debugger"]["endTime"] = microtime(true);
-$event->renderDebugger();
+
 ?>

@@ -66,7 +66,7 @@ class Event extends PholdBoxBaseObj
 		
 		Does: Called from handlers to render the view to the page.
 	*/
-	public function renderView()
+	protected function renderView()
 	{
 		$rc = $this->rc;
 		if($this->useLayout)
@@ -77,6 +77,8 @@ class Event extends PholdBoxBaseObj
 		{
 			include("views/" . $this->view . ".php");
 		}
+		$this->SYSTEM["debugger"]["endTime"] = microtime(true);
+		$this->renderDebugger();
 	}
 	
 	/*
