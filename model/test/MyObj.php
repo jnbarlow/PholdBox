@@ -6,10 +6,11 @@ namespace test;
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
-class MyObj
+class MyObj extends \system\Model
 {
 	public function getText()
 	{
+		$this->debug($this, "Debugger from Obj extending abstract Model");
 		return "In MyObj (test.MyObj)";	
 	}
 }

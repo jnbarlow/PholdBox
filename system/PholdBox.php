@@ -16,7 +16,7 @@ $GLOBALS["rc"] = $RCProcessor->getCollection();
 $GLOBALS["rc"]["PB_VERSION"] = $VERSION;
 
 $SYSTEM["debugger"]["startTime"] = microtime(true);
-
+$SYSTEM["debugger"]["showDebugger"] = true;
 $event = new system\Event($SYSTEM["default_layout"]);
 if(array_key_exists("event", $GLOBALS["rc"]))
 {
@@ -26,5 +26,9 @@ else
 {	
 	$event->processEvent($SYSTEM["default_event"]);
 }
-
+$SYSTEM["debugger"]["endTime"] = microtime(true);
+if($SYSTEM["debugger"]["showDebugger"])
+{
+	$event->renderDebugger();
+}
 ?>

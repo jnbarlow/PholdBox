@@ -75,10 +75,9 @@ class Event extends PholdBoxBaseObj
 		}
 		else
 		{
+			$this->SYSTEM["debugger"]["showDebugger"] = false;
 			include("views/" . $this->view . ".php");
 		}
-		$this->SYSTEM["debugger"]["endTime"] = microtime(true);
-		$this->renderDebugger();
 	}
 	
 	/*
@@ -142,8 +141,7 @@ class Event extends PholdBoxBaseObj
 		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
 		{
 			$this->pushDebugStack($resolved->evtClass . "." . $pathArray[1] . "() End", "Function", microtime() - $startTime);
-		}
-		
+		}		
 	}
 	
 	/*
@@ -207,6 +205,7 @@ class Event extends PholdBoxBaseObj
 	   */
 	   public function renderDebugger()
 	   {
+	   		$startTime = microtime();
 	   		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]) && $this->useLayout)
 	   		{
 	   			$html  = "<script>";
@@ -235,8 +234,8 @@ class Event extends PholdBoxBaseObj
 	   			foreach($this->SYSTEM["debugger"]["userStack"] as $item)
 	   			{	
 		   			$html .= 	"<div style='background-color:#eeeeee;margin:2px 5px;padding:5px;'>";
-		   			$html .=		"<span style='cursor:pointer;clear:both' onclick='toggleDebugPanel(\"debug" . $counter . "\")'>" . $item["name"] . "</span><br>";
-		   			$html .=		"<pre id='debug" . $counter . "' style='background-color:white;display:none'>" . $this->varDumpToString($item["object"]) . "</pre>";	   		
+		   			$html .=		"<span style='cursor:pointer;clear:both' onclick='toggleDebugPanel(\"userDebug" . $counter . "\")'>" . $item["name"] . "</span><br>";
+		   			$html .=		"<pre id='userDebug" . $counter . "' style='background-color:white;display:none'>" . $this->varDumpToString($item["object"]) . "</pre>";	   		
 		   			$html .=	"</div>";
 		   				   			
 		   			$counter++;
@@ -275,6 +274,7 @@ class Event extends PholdBoxBaseObj
 		   			$counter++;
 	   			}
 	   			$html .=	"</div>";
+	   			$html .= "<h3>Debugger Rendering Time: " . number_format(microtime() - $startTime, 4) . "s";
 	   			$html .= "</div>";
 	   			echo $html;
 	   		}
