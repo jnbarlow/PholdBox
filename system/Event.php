@@ -222,7 +222,8 @@ class Event extends PholdBoxBaseObj
 	   			$html .= "<div style='clear:both;background-color:#dddddd;padding:5px;margin-top:10px'>";
 	   			$html .=	"<h3>PholdBox Debugger</h3>";
 	   			$html .=	"<p>PholdBox Version: " . $this->rc["PB_VERSION"] . "<br>";
-	   			$html .= 	"Template Rendering Time: " . number_format(($this->SYSTEM["debugger"]["endTime"] - $this->SYSTEM["debugger"]["startTime"]), 4) . "s</p>";  
+	   			$html .= 	"Template Rendering Time: " . number_format(($this->SYSTEM["debugger"]["endTime"] - $this->SYSTEM["debugger"]["startTime"]), 4) . "s<br>";  
+	   			$html .=    "Total Memory Usage: " . number_format(memory_get_usage(true)/1024/1024, 2) . "M<p>";
 	   			$html .= 	"<div style='background-color:#eeeeee;margin:0px 5px;padding:5px;'>";
 	   			$html .=		"<span style='cursor:pointer' onclick='toggleDebugPanel(\"debugRC\")'>Request Collection</span><br>";
 	   			$html .=		"<pre id='debugRC' style='background-color:white;display:none'>" . $this->varDumpToString($this->rc) . "</pre>";	   		
