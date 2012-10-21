@@ -90,7 +90,11 @@ require_once("MDB2.php");
  	*/
  	public function getValue($key)
  	{
- 		return $this->ORM["values"][$key];
+ 		if(isset($this->ORM["values"][$key]))
+ 		{ 
+ 			return $this->ORM["values"][$key];
+ 		}
+ 		return '';
  	}
  	
  	/*
