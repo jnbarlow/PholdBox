@@ -10,7 +10,7 @@ require("PhORM.php");
 //look for site specific configs and merge them.
 if(isset($SYSTEM[$_SERVER["SERVER_NAME"]]))
 {
-	$SYSTEM = array_merge($SYSTEM, $SYSTEM[$_SERVER["SERVER_NAME"]]);
+	$SYSTEM = array_merge_recursive($SYSTEM, $SYSTEM[$_SERVER["SERVER_NAME"]]);
 }
 
 session_start();
