@@ -6,19 +6,21 @@ require("PholdBoxBaseObj.php");
 require("Event.php");
 require("Model.php");
 require("PhORM.php");
+require("PholdBoxSessionManager.php");
 
 //look for site specific configs and merge them.
 if(isset($SYSTEM[$_SERVER["SERVER_NAME"]]))
 {
-	$SYSTEM = array_merge_recursive($SYSTEM, $SYSTEM[$_SERVER["SERVER_NAME"]]);
+	$SYSTEM = array_replace_recursive($SYSTEM, $SYSTEM[$_SERVER["SERVER_NAME"]]);
 }
-
-session_start();
 
 $VERSION = "1.0 beta";
 
 $RCProcessor = new system\RCProcessor();
 $GLOBALS["rc"] = $RCProcessor->getCollection();
+$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
+$GLOBALS["SESSION"]->loadSession();
+
 $GLOBALS["rc"]["PB_VERSION"] = $VERSION;
 
 $SYSTEM["debugger"]["startTime"] = microtime(true);

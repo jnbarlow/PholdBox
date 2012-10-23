@@ -214,5 +214,27 @@ class PholdBoxBaseObj
 	 {
 	 	$this->SYSTEM["debugger"]["userStack"][] = array("name" => $label, "object" => $obj);
 	 }
+	 
+	 /**
+	  * setSessionValue
+	  * Sets a value to the sesion objet
+	  * @param string $key Key in array to set
+	  * @param mixed $value Value to set
+	  */
+	 public function setSessionValue($key, $value)
+	 {
+	 	$GLOBALS["SESSION"]->pushToSession($key, $value);	
+	 }
+	 
+	 /**
+	  * getSessoinValue
+	  * Gets a value from the session object
+	  * @param string $key Key to retrieve from the session
+	  * @return mixed Value of Key
+	  */
+	 public function getSessionValue($key)
+	 {
+	 	return $GLOBALS["SESSION"]->getFromSession($key);
+	 }
 }
 ?>

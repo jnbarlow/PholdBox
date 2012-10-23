@@ -227,6 +227,9 @@ require_once("MDB2.php");
  		
  		// Always check that result is not an error
 		if (\PEAR::isError($result)) {
+			if($this->ORM["tableName"] == "pholdbox"){
+				throw new \Exception($result->getMessage());
+			}
 		    die($result->getMessage());
 		}
 		
