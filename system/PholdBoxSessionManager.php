@@ -26,6 +26,7 @@ class PholdBoxSessionManager extends \system\PhORM
 		else
 		{
 			$sessionId = uniqid("", true);
+			setcookie("PHPSESSID", $sessionId);
 		}
 		$this->setSessionId($sessionId);
 		try
