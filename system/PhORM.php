@@ -30,13 +30,27 @@ require_once("MDB2.php");
  //TODO: set up links logic
  class PhORM extends PholdBoxBaseObj
  {
+ 	/**
+ 	 * @property array ORM This describes the database you wish to use for the object.
+ 	 * 
+ 	 * 	protected $ORM = array("tableName"=>"test",
+	 *					   "dsn"=>"",
+	 *					   "columns"=>array("id", "name", "title"),
+	 *					   "types"=>array("int(1)", "varchar(25)", "varchar(25)"),
+	 *					   "values"=>array());
+ 	 * 
+ 	 */
  	protected $ORM = array();
+ 	
+ 	/**
+ 	 * @property object db Database Object
+ 	 */
  	protected $db = null;
  
  	function __construct()
  	{
+ 		parent::__construct();
  		$current_dsn="";
- 		$this->SYSTEM = $GLOBALS["SYSTEM"];
  		if(array_key_exists("dsn", $this->ORM) && $this->ORM["dsn"] != "")
  		{
  			$current_dsn = $this->ORM["dsn"];
@@ -52,7 +66,7 @@ require_once("MDB2.php");
  		{
  			die($this->db->getMessage());
  		}
- 		parent::__construct();
+ 		
  	}
  	
  	/**
@@ -76,14 +90,11 @@ require_once("MDB2.php");
  	*/
  	public function getValue($key)
  	{
- 		if(array_key_exists($key, $this->ORM["values"]))
+ 		if(isset($this->ORM["values"][$key]))
  		{ 
  			return $this->ORM["values"][$key];
  		}
- 		else
- 		{
- 			return '';
- 		}
+ 		return '';
  	}
  	
  	/**
@@ -96,7 +107,7 @@ require_once("MDB2.php");
  		Returns: db value of object, or whatever the parent decides to return (could be an object)
  	*/
  	public function __call($name, $arguments)
- 	{
+ 	{ 				
  		$action = substr($name, 0, 3);
  		$prop = lcfirst(substr($name, 3));
  		if($action == "get")
@@ -120,7 +131,7 @@ require_once("MDB2.php");
  			{
  				parent::__call($name, $arguments);
  			}
- 		}
+ 		} 		
  	}
  	
  	/**
@@ -160,7 +171,7 @@ require_once("MDB2.php");
  				{
  					$where = $where . " and ";
  				}
- 				$where = $where . $column . "='" . $this->ORM["values"][$column] . "'";
+ 				$where = $where . $column . "='" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
  				$wFirst = false;
  			}
  		}
@@ -173,12 +184,50 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
- 	//this function assumes 1 row is being returned, and will use the fist one it finds.
+ 	/**
+ 	 * query
+ 	 * 
+ 	 * This is a wrapper to the underlying PEAR db query function so that you can have custom queries in objects.
+ 	 * The queries should be in functions named "qMyCustomQueryName".  This is where you put the custom SQL and call
+ 	 * $this->query($sql);
+ 	 * 
+ 	 * @param string $sql SQL string to execute
+ 	 * @return Object DB object with the result of the query
+ 	 */
+ 	public function query($sql)
+ 	{
+ 		$result = $this->db->query($sql);
+ 		
+ 		// Always check that result is not an error
+		if (\PEAR::isError($result)) {
+		    die($result->getMessage());
+		}
+		
+		return $result;
+ 	}
+ 	
+ 	/**
+ 	 * load
+ 	 * 
+ 	 * This function loads one object if an ID is supplied, otherwise it will do a
+ 	 * bulk search across the db and return an array of objects
+ 	 * 
+ 	 * @return array Array of matching objects if in bulk mode.
+ 	 */
  	public function load()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
+ 		$bulk = false;
+ 		$returnArray = array();
+ 		
  		if($this->getId() == '')
  		{
- 			die("PhORM Error: id must be specified");
+ 			$bulk = true;
  		}
  		
  		$sql = $this->generateSelect();	
@@ -187,24 +236,71 @@ require_once("MDB2.php");
  		
  		// Always check that result is not an error
 		if (\PEAR::isError($result)) {
+			if($this->ORM["tableName"] == "pholdbox"){
+				throw new \Exception($result->getMessage());
+			}
 		    die($result->getMessage());
 		}
 		
 		//load object
-		if($result->numRows() > 0)
+		if($result->numRows() == 1)
 		{
 			$row = $result->fetchRow();
-			$colIndex = 0;
-			foreach($result->getColumnNames(true) as $column)
+	
+			$resultCols = $result->getColumnNames();
+			foreach($this->ORM["columns"] as $column)
 			{
-				$this->setValue($column, $row[$colIndex]);
-				$colIndex++;
+				$this->setValue($column, $row[$resultCols[strtolower($column)]]);
 			}
+			array_push($returnArray, &$this);
+ 		}
+ 		//load objects
+ 		else if($result->numRows() > 1)
+ 		{
+ 			$class= get_class($this);
+ 			$row = $result->fetchRow();
+ 			while($row != null){
+ 				
+				$obj = new $class;
+ 				
+				$resultCols = $result->getColumnNames();
+				foreach($this->ORM["columns"] as $column)
+				{
+					$obj->setValue($column, $row[$resultCols[strtolower($column)]]);
+				}
+				array_push($returnArray, $obj);
+				$row = $result->fetchRow();
+ 			}
  		}
  		else
  		{
- 			$this->setValue("id", "");
- 		} 		
+ 			foreach($this->ORM["columns"] as $column)
+ 			{
+ 				if($this->getValue($column) == null)
+ 				{
+ 					$this->setValue($column, "");	
+ 				}
+ 			}
+ 			
+ 		} 	
+ 		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".load()", "Function", microtime() - $startTime);
+		}
+ 		return $returnArray;	
+ 	}
+ 	
+ 	/**
+ 	 * clear
+ 	 * clears an object to be reused
+ 	 */
+ 	public function clear()
+ 	{
+ 		foreach($this->ORM["columns"] as $column)
+ 		{
+ 			$this->setValue($column, "");	
+ 		}
  	}
  	
  	protected function generateUpdate()
@@ -227,7 +323,7 @@ require_once("MDB2.php");
 	 			{
 	 			 	$sql = $sql . ", ";
 	 			}
-	 			$sql = $sql . $column . " = '" . $this->ORM["values"][$column] . "'";
+	 			$sql = $sql . $column . " = '" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
 	 			$first=false;
  			}
  			
@@ -263,7 +359,7 @@ require_once("MDB2.php");
 	 			
 	 			//$colNames = $colNames . "'" . $column . "'";
 	 			$colNames = $colNames . $column;
-	 			$values = $values . "'" . $this->ORM["values"][$column] . "'";
+	 			$values = $values . "'" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
 	 			$first=false;
  			}
  			
@@ -392,6 +488,12 @@ require_once("MDB2.php");
  	 */
  	public function save()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
  		$sql = "";
  		if(array_key_exists("id", $this->ORM["values"]) && $this->ORM["values"]["id"] != "")
  		{
@@ -410,6 +512,11 @@ require_once("MDB2.php");
 		if (\PEAR::isError($result)) {
 		    die($result->getMessage());
 		}
+		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".save()", "Function", microtime() - $startTime);
+		}
  		return $result;
  	}
  	
@@ -420,6 +527,12 @@ require_once("MDB2.php");
  	 */
  	public function delete()
  	{
+ 		//capture debug timing
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$startTime = microtime();
+		}
+		
  		$sql = "delete from ". $this->ORM["tableName"];
  		//sanity check
  		
@@ -428,8 +541,13 @@ require_once("MDB2.php");
 			print(get_class($this) . " - id is undefined");
 			exit;
 		}
- 		$sql = $sql . " where id='". $this->ORM["values"]["id"] ."'";
- 				
+ 		$sql = $sql . " where id='". str_replace("'", "''", $this->ORM["values"]["id"]) ."'";
+ 		
+ 		//capture debug output
+		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+		{
+			$this->pushDebugStack(get_class($this) .  ".delete()", "Function", microtime() - $startTime);
+		}	
  		print($sql);
  	}
  	

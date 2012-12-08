@@ -16,6 +16,9 @@ class Main extends system\Event
 	{
 		$this->setView("home");
 		
+		$this->debug("Test", "Test Output");
+		$this->debug($this, "Main Handler");
+		
 		$this->rc["MyObj"] = $this->instance["MyObj"]->getText();
 		$this->rc["MyObj2"] = $this->instance["test\MyObj"]->getText();
 		$this->renderView();

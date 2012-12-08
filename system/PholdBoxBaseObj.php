@@ -12,19 +12,39 @@ namespace system;
 
 class PholdBoxBaseObj
 {
+	/**
+	 * @property array instance This is the array in which all IOC objects are stored 
+	 */
 	protected $instance = array();
-	protected $SYSTEM = array();
+	
+	/**
+	 * @property array SYSTEM Static array of system variables
+	 */
+	static protected $SYSTEM = array();
+	
+	/**
+	 * @property array IOC Array of text fields describing the objects you wish to inject
+	 */
 	protected $IOC;
-	/*
+	
+	/**
+	 * @property array rc This is the Request collection. This object is exposed to the view layer, so that any data rollup can happen
+	 * here.  All post/get variables are shoved into this as well, following the rule that POST variables win over GET.
+	 */
+	protected $rc;	
+	
+	/**
 		Constructor:  Child classes need to call this through parent::__construct() to 
 		get IOC elemets processed;
 	*/
 	public function __construct()
 	{
+		$this->SYSTEM = &$GLOBALS["SYSTEM"];
+		$this->rc = $GLOBALS["rc"];
 		$this->processIOC();
 	}
 	
-	/*
+	/**
 		Name: dotResolver
 		
 		Does: This is the dot resolver that is used to convert handler and model 
@@ -85,7 +105,7 @@ class PholdBoxBaseObj
 		return $stReturn;
 	}
 	
-	/*
+	/**
 		Name: processIOC
 		
 		Does: This function allows for Spring style object injection.  It works
@@ -121,14 +141,27 @@ class PholdBoxBaseObj
 				
 				if(file_exists($model))
 				{
-					include($model);
+					include_once($model);
 				}
 				else
 				{
 					print("Invalid Model: $object");
 					exit;
 				}
-				$this->instance[$resolved->modelClass] = new $resolved->modelClass;	
+				
+				//capture debug timing
+				if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+	   			{
+	   				$startTime = microtime();
+	   			}
+				
+				$this->instance[$resolved->modelClass] = new $resolved->modelClass;
+				
+				//capture debug output
+				if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
+	   			{	
+					$this->pushDebugStack($this->instance[$resolved->modelClass], "Model", microtime() - $startTime);
+	   			}
 			}
 		}
 	} 
@@ -138,5 +171,70 @@ class PholdBoxBaseObj
  	{
  		print("Call fired: ". $name . "<br>");
  	}
+ 	
+	/**
+	* varDumpToString
+	* private util function to capture the output of var_dump
+	*/
+	protected function varDumpToString ($var)
+	{
+		ob_start();
+		var_dump($var);
+		$result = ob_get_clean();
+		return $result;
+	}
+	
+	/**
+	 * pushDebugStack
+	 * Pushes an object to the debug stack trace.
+	 * @param mixed $obj Object being pushed to the stack
+	 * @param string $type
+	 * @param mixed $time Timing info - or ""
+	 */
+	protected function pushDebugStack ($obj, $type, $time)
+	{
+		if($type == "Function")
+		{
+			$this->SYSTEM["debugger"]["stack"][] = array("name" => $obj, "object" => null, "type" => $type, "timing" => $time);
+		}
+		else
+		{
+			$this->SYSTEM["debugger"]["stack"][] = array("name" => get_class($obj), "object" => $obj, "type" => $type, "timing" => $time);	
+		}
+		
+	}
+	
+	/**
+	 * debug
+	 * Allows user to push strings/objects to the user debug stack to be dumped
+	 * @param mixed $obj Object to dump
+	 * @param string $label Label for your object
+	 */
+	 public function debug($obj, $label = "unnamed")
+	 {
+	 	$this->SYSTEM["debugger"]["userStack"][] = array("name" => $label, "object" => $obj);
+	 }
+	 
+	 /**
+	  * setSessionValue
+	  * Sets a value to the sesion objet
+	  * @param string $key Key in array to set
+	  * @param mixed $value Value to set
+	  */
+	 public function setSessionValue($key, $value)
+	 {
+	 	$GLOBALS["SESSION"]->pushToSession($key, $value);	
+	 }
+	 
+	 /**
+	  * getSessoinValue
+	  * Gets a value from the session object
+	  * @param string $key Key to retrieve from the session
+	  * @return mixed Value of Key
+	  */
+	 public function getSessionValue($key)
+	 {
+	 	return $GLOBALS["SESSION"]->getFromSession($key);
+	 }
 }
 ?>

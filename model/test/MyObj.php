@@ -6,11 +6,14 @@ namespace test;
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
-class MyObj
+class MyObj extends \system\Model
 {
 	public function getText()
 	{
-		return "In MyObj (test.MyObj)";	
+		$sessionVal = $this->getSessionValue("test");
+		$this->debug($this, "Debugger from Obj extending abstract Model");
+		$this->setSessionValue("test", "Test Value");
+		return "In MyObj (test.MyObj) -- Session Val:" . $sessionVal;	
 	}
 }
 ?>

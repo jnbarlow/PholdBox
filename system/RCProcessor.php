@@ -11,6 +11,10 @@ namespace system;
  */
 class RCProcessor
 {
+	/**
+	 * @property array rc This is the Request collection. This object is exposed to the view layer, so that any data rollup can happen
+	 * here.  All post/get variables are shoved into this as well, following the rule that POST variables win over GET.
+	 */
 	protected $rc = array();
 	
 	/* loop through URL and Form arrays to consolidate all variables into the RC collection
