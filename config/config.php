@@ -6,7 +6,7 @@
  */
 
 $SYSTEM = array();
-$GLOBALS["SYSTEM"] = $SYSTEM;
+$GLOBALS["SYSTEM"] = &$SYSTEM;
 
 //-- Production values --
 
