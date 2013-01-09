@@ -95,12 +95,12 @@ class Event extends PholdBoxBaseObj
 		
 		if(file_exists($handler))
 		{
-			include($handler);
+			include_once($handler);
 		}
 		else
 		{
 			print("Invalid Handler: $event");
-			exit;
+			return -1;
 		}
 		
 		//capture debug timing

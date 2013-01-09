@@ -24,7 +24,9 @@ $GLOBALS["SESSION"]->loadSession();
 $GLOBALS["rc"]["PB_VERSION"] = $VERSION;
 
 $SYSTEM["debugger"]["startTime"] = microtime(true);
-$SYSTEM["debugger"]["showDebugger"] = true;
+$SYSTEM["debugger"]["userStack"] = array();
+$SYSTEM["debugger"]["stack"] = array();
+
 $event = new system\Event($SYSTEM["default_layout"]);
 if(array_key_exists("event", $GLOBALS["rc"]))
 {
@@ -35,8 +37,7 @@ else
 	$event->processEvent($SYSTEM["default_event"]);
 }
 $SYSTEM["debugger"]["endTime"] = microtime(true);
-if($SYSTEM["debugger"]["showDebugger"])
-{
-	$event->renderDebugger();
-}
+
+$event->renderDebugger();
+
 ?>

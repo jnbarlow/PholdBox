@@ -1,6 +1,4 @@
 <h2>Environment Test</h2>
-<p>Output from IOC object MyObj: <strong><?php echo $rc["MyObj"]?></strong><p>
-<p>Output from IOC object test.MyObj: <strong><?php echo $rc["MyObj2"]?></strong><p>
 
 <h2>Welcome</h2>
 
