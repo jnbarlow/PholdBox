@@ -12,12 +12,12 @@ class PholdBoxTestBase extends PHPUnit_Framework_TestCase
 	protected function setUp(){
 		$_SERVER["SERVER_NAME"] = "pholdbox.local.dev";
 		require("config/config.php");
-		require("system/RCProcessor.php");
-		require("system/PholdBoxBaseObj.php");
-		require("system/Event.php");
-		require("system/Model.php");
-		require("system/PhORM.php");
-		require("system/PholdBoxSessionManager.php");
+		require_once("system/RCProcessor.php");
+		require_once("system/PholdBoxBaseObj.php");
+		require_once("system/Event.php");
+		require_once("system/Model.php");
+		require_once("system/PhORM.php");
+		require_once("system/PholdBoxSessionManager.php");
 		
 		//look for site specific configs and merge them.
 		if(isset($SYSTEM[$_SERVER["SERVER_NAME"]]))
@@ -26,11 +26,11 @@ class PholdBoxTestBase extends PHPUnit_Framework_TestCase
 		}
 		
 		$VERSION = "1.0 beta";
-		
+		//var_dump($SYSTEM);
 		$RCProcessor = new system\RCProcessor();
 		$GLOBALS["rc"] = $RCProcessor->getCollection();
-		$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
-		$GLOBALS["SESSION"]->loadSession();
+		//$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
+		//$GLOBALS["SESSION"]->loadSession();
 		
 		$GLOBALS["rc"]["PB_VERSION"] = $VERSION;
 		

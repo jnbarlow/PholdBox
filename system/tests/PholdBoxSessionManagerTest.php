@@ -8,32 +8,33 @@
 include_once("PholdBoxTestBase.php");
 class PholdBoxSessionManagerTest extends PholdBoxTestBase
 {
-	protected $session;
+	static protected $session;
 	protected function setUp(){
 		parent::setUp();
-		$this->session = new system\PholdBoxSessionManager();
+		if(self::$session == null){
+			self::$session = new system\PholdBoxSessionManager();
+		}
+		//$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
+		//$GLOBALS["SESSION"]->loadSession();
 		$_COOKIE["PHPSESSID"] = "unitTests";
-	}
-	
-	protected function tearDown(){
-		$this->session->delete();
 	}
 
 	/**
-	 * @runInSeparateProcess
+	 * 
 	 */
 	public function testPushToSession(){
-		$this->session->loadSession();
-		$this->session->pushToSession("test", "1,2,3");
+		self::$session->loadSession();
+		self::$session->pushToSession("test", "1,2,3");
 	}
 
 	/**	
-	 * @runInSeparateProcess
+	 * 
 	 * @depends testPushToSession
 	 */
 	public function testGetFromSession(){
-		$this->session->loadSession();
-		$this->assertEquals($this->session->getFromSession("test"), "1,2,3");
+		self::$session->loadSession();
+		$this->assertEquals(self::$session->getFromSession("test"), "1,2,3");
+		self::$session->delete();
 	}
 }
 ?>
