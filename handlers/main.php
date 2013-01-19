@@ -10,7 +10,7 @@
  */
 class Main extends system\Event
 {
-	protected $IOC = array("MyObj", "test.MyObj");
+	protected $IOC = array("test.MyObj");
 	
 	public function home()
 	{

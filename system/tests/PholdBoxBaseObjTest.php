@@ -15,7 +15,7 @@ class PholdBoxBaseObjTest extends PholdBoxTestBase
 	}
 
 	/**
-	 * @runInSeparateProcess
+	 * runInSeparateProcess
 	 */
 	public function testDebug(){
 		$path = $this->baseObj->debug("main.home");
