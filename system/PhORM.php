@@ -517,6 +517,7 @@ require_once("MDB2.php");
 		{
 			$this->pushDebugStack(get_class($this) .  ".save()", "Function", microtime() - $startTime);
 		}
+		$this->setId($this->db->lastInsertID());
  		return $result;
  	}
  	
@@ -543,12 +544,19 @@ require_once("MDB2.php");
 		}
  		$sql = $sql . " where id='". str_replace("'", "''", $this->ORM["values"]["id"]) ."'";
  		
- 		//capture debug output
+ 		$result = $this->db->exec($sql);
+ 		
+ 		// Always check that result is not an error
+		if (\PEAR::isError($result)) {
+		    die($result->getMessage());
+		}
+		$this->clear();
+		
+		//capture debug output
 		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
 		{
-			$this->pushDebugStack(get_class($this) .  ".delete()", "Function", microtime() - $startTime);
-		}	
- 		print($sql);
+			$this->pushDebugStack(get_class($this) .  ".save()", "Function", microtime() - $startTime);
+		}
  	}
  	
  	
