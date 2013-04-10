@@ -26,7 +26,7 @@ class PholdBoxTestBase extends PHPUnit_Framework_TestCase
 		}
 		
 		$VERSION = "1.0 beta";
-		//var_dump($SYSTEM);
+	
 		$RCProcessor = new system\RCProcessor();
 		$GLOBALS["rc"] = $RCProcessor->getCollection();
 		//$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
