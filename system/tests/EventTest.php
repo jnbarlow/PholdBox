@@ -14,58 +14,44 @@ class EventTest extends PholdBoxTestBase
 		$SYSTEM["debug"] = false;
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
 	function testProcessEvent(){
 		$this->event = new system\Event("layout.main");
+		ob_start();
 		$this->event->processEvent("main.home");
-		$output = $this->getActualOutput();
-		$this->assertContains("Welcome", $output);
+		$this->assertContains("Welcome", ob_get_clean());
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
 	function testInvalidHandler(){
 		$this->event = new system\Event("layout.main");
+		ob_start();
 		$this->event->processEvent("foo.bar");
-		$this->expectOutputString("Invalid Handler: foo.bar");
+		$this->assertEquals(ob_get_clean(), "Invalid Handler: foo.bar");
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
 	function testMissingHandlerFunction(){
 		$this->event = new system\Event("layout.main");
+		ob_start();
 		$this->event->processEvent("main.bar");
-		$this->expectOutputString("Call fired: bar<br>");
+		$this->assertEquals(ob_get_clean(), "Call fired: bar<br>");
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
 	function testDebugOutput(){
 		$SYSTEM["debug"] = true;
 		$this->event = new system\Event("layout.main");
+		ob_start();
 		$this->event->renderDebugger();
-		$output = $this->getActualOutput();
-		$this->assertContains("Debugger", $output);
+		$this->assertContains("Debugger", ob_get_clean());
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
 	function testSetLayout(){
 		$this->event = new system\Event("layout.main");
 		$this->event->setLayout("layout.main");
+		ob_start();
 		$this->event->processEvent("main.home");
-		$output = $this->getActualOutput();
-		$this->assertContains("Welcome", $output);
+		$this->assertContains("Welcome", ob_get_clean());
 	}
 	
 	/**
-	 * @runInSeparateProcess
 	 * @expectedException PHPUnit_Framework_Error
 	 */
 	function testSetLayout_invalidFile(){
@@ -74,10 +60,7 @@ class EventTest extends PholdBoxTestBase
 		$this->event->processEvent("main.home");
 	}
 	
-	/**
-	 * @runInSeparateProcess
-	 */
-	 function testSetValue_GetValue(){
+	function testSetValue_GetValue(){
 	 	$this->event = new system\Event("layout.main");
 	 	$this->event->setValue("test", "1,2,3");
 	 	$this->assertEquals($this->event->getValue("test"), "1,2,3");
