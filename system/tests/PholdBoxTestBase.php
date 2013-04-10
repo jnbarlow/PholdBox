@@ -5,19 +5,19 @@
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
+require_once("system/RCProcessor.php");
+require_once("system/PholdBoxBaseObj.php");
+require_once("system/Event.php");
+require_once("system/Model.php");
+require_once("system/PhORM.php");
+require_once("system/PholdBoxSessionManager.php");
 
 class PholdBoxTestBase extends PHPUnit_Framework_TestCase
 {
 	protected $event;
 	protected function setUp(){
 		$_SERVER["SERVER_NAME"] = "pholdbox.local.dev";
-		require("config/config.php");
-		require_once("system/RCProcessor.php");
-		require_once("system/PholdBoxBaseObj.php");
-		require_once("system/Event.php");
-		require_once("system/Model.php");
-		require_once("system/PhORM.php");
-		require_once("system/PholdBoxSessionManager.php");
+		require("config/config.php");		
 		
 		//look for site specific configs and merge them.
 		if(isset($SYSTEM[$_SERVER["SERVER_NAME"]]))
@@ -26,7 +26,7 @@ class PholdBoxTestBase extends PHPUnit_Framework_TestCase
 		}
 		
 		$VERSION = "1.0 beta";
-		//var_dump($SYSTEM);
+	
 		$RCProcessor = new system\RCProcessor();
 		$GLOBALS["rc"] = $RCProcessor->getCollection();
 		//$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();

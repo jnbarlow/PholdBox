@@ -11,6 +11,7 @@ class PhORMTest extends PholdBoxTestBase
 {
 	static protected $myObj;
 	static protected $id;
+		
 	protected function setUp()
 	{
 		parent::setUp();
@@ -20,9 +21,15 @@ class PhORMTest extends PholdBoxTestBase
 			self::$myObj = new MyObj();
 		}
 	}
+	
 	public function tearDown()
 	{
 		self::$myObj->clear();
+	}
+	
+	public static function tearDownAfterClass()
+	{
+		self::$myObj = null;	
 	}
 
 	/**

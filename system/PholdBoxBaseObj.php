@@ -69,7 +69,7 @@ class PholdBoxBaseObj
 	*/
 	protected function dotResolver($path)
 	{
-		$stReturn = "";
+		$stReturn = new \stdClass();
 		$evtClass = "";
 		
 		$dotCount = substr_count($path, ".");

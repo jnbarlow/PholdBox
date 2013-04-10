@@ -14,9 +14,12 @@ class PholdBoxSessionManagerTest extends PholdBoxTestBase
 		if(self::$session == null){
 			self::$session = new system\PholdBoxSessionManager();
 		}
-		//$GLOBALS["SESSION"] = new system\PholdBoxSessionManager();
-		//$GLOBALS["SESSION"]->loadSession();
 		$_COOKIE["PHPSESSID"] = "unitTests";
+		$_SERVER["REMOTE_ADDR"] = "128.0.0.1";
+		$_SERVER["HTTP_USER_AGENT"] = "unitTests";
+		$_COOKIE["CHECKSUM1"] = hash("sha1", $_SERVER["REMOTE_ADDR"]);
+		$_COOKIE["CHECKSUM2"] = hash("sha1", $_SERVER["HTTP_USER_AGENT"]);
+		self::$session->clear();
 	}
 
 	/**
@@ -31,9 +34,29 @@ class PholdBoxSessionManagerTest extends PholdBoxTestBase
 	 * 
 	 * @depends testPushToSession
 	 */
+	public function testGetFromSession_phish(){
+		$_SERVER["REMOTE_ADDR"] = "128.0.0.2";
+		self::$session->loadSession();
+		$this->assertEquals("", self::$session->getFromSession("test"));
+	}
+	
+	/**	
+	 * 
+	 * @depends testGetFromSession_phish
+	 */
+	public function testGetFromSession_phish2(){
+		$_SERVER["HTTP_USER_AGENT"] = "unitTests1";
+		self::$session->loadSession();
+		$this->assertEquals("", self::$session->getFromSession("test"));
+	}
+	
+	/**	
+	 * 
+	 * @depends testGetFromSession_phish2
+	 */
 	public function testGetFromSession(){
 		self::$session->loadSession();
-		$this->assertEquals(self::$session->getFromSession("test"), "1,2,3");
+		$this->assertEquals("1,2,3", self::$session->getFromSession("test"));
 		self::$session->delete();
 	}
 }

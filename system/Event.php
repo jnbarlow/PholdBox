@@ -69,6 +69,7 @@ class Event extends PholdBoxBaseObj
 	protected function renderView()
 	{
 		$rc = $this->rc;
+		ob_start();
 		if($this->useLayout)
 		{
 			$this->renderLayout("views/" . $this->view . ".php");
@@ -78,7 +79,29 @@ class Event extends PholdBoxBaseObj
 			$this->SYSTEM["debugger"]["showDebugger"] = false;
 			include("views/" . $this->view . ".php");
 		}
+		$this->generateETag(ob_get_clean());
 	}
+		
+	/**
+	 * GenerateETag
+	 * 
+	 * Generates ETag headers for content calls, sends 304 if the same.
+	 */
+	protected function generateETag($content)
+	{
+		$eTag = hash("sha1", $content);
+		header("ETag: " . $eTag);
+		if(isset($_SERVER["HTTP_IF_NONE_MATCH"]) && (isset($this->SYSTEM["debug"]) && !$this->SYSTEM["debug"]))
+		{
+			if($eTag == $_SERVER["HTTP_IF_NONE_MATCH"])
+			{
+				header("Status: 304 Not Modified");
+				header("HTTP/1.0 304 Not Modified");
+				die();
+			}
+		}
+		echo $content;
+	}  
 	
 	/*
 		Name: processEvent
