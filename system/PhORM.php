@@ -69,7 +69,7 @@ require_once("MDB2.php");
  		
  	}
  	
- 	/*
+ 	/**
  		Name: setValue
  		
  		Does: Sets value of key into the VO
@@ -81,7 +81,7 @@ require_once("MDB2.php");
  		$this->ORM["values"][$key] = $value;
  	}
  	
- 	/*
+ 	/**
  		Name: getValue
  		
  		Does: Gets value of key into the VO
@@ -97,7 +97,7 @@ require_once("MDB2.php");
  		return '';
  	}
  	
- 	/*
+ 	/**
  		Name: __call
  		
  		Does: This is a php 5 "magic" function that gets called if you call a function that doesn't exist.
@@ -133,8 +133,17 @@ require_once("MDB2.php");
  			}
  		} 		
  	}
+ 	
+ 	/**
+ 	 * Name: getPhormTable
+ 	 * Does: returns the table this object is associated with.
+ 	 */
+ 	public function getPhORMTable()
+ 	{
+ 		return $this->ORM["tableName"];
+ 	}
 
-	/*
+	/**
 		Name: generateSelect()
 		
 		Does: Generates a select statement based on the values in the DB object.  The where clause is 
@@ -370,7 +379,8 @@ require_once("MDB2.php");
  		
  		if($tempTableKey != null)
  		{
- 			//TODO: create temp table from $tempTableKey, add to sql. Set table name to temp table key.
+ 			$sql .= $this->generateTempTableSQL($tempTableKey);
+ 			$target = $tempTableKey;
  		}
  		else
  		{
@@ -382,7 +392,7 @@ require_once("MDB2.php");
  		$colNames = " (";
  		foreach($this->ORM["columns"] as $column)
  		{	
- 			if($column != "id")
+ 			if($column != "id" || $tempTableKey != null)
  			{
  				//sanity check
  				if(!array_key_exists($column, $this->ORM["values"]))
@@ -407,17 +417,46 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
- 	/*
- 	 * Name: generateBulkSelect
- 	 * Does: crreates the select statements needed for bulk inserting
+ 	/**
+ 	 * Name: generateTempTableSQL
+ 	 * Does: Generates the temp table creation SQL for whatever DB server you are using
+ 	 * @param string tempTableKey - name of temporary table.
+ 	 * @return string SQL to create temp table.
  	 */
- 	protected function generateBulkSelect()
+ 	protected function generateTempTableSQL($tempTableKey)
+ 	{	
+ 		$sql = "";
+ 		//TODO: do some fancy switching here based on db type
+ 		
+ 		//MYSQL
+ 		$sql = "CREATE TEMPORARY TABLE ". $tempTableKey . " (";
+    	$count = 0;
+    	
+    	foreach($this->ORM["columns"] as $column)
+    	{
+    		if($count != 0)
+    		{ 
+    			$sql .= ", ";
+    		}
+    		$sql .= $column . " " . $this->ORM["types"][$count];
+    		$count++;
+    	}
+    	$sql .= ");";
+   
+ 		return $sql;	
+ 	}
+ 	
+ 	/**
+ 	 * Name: generateBulkSelect
+ 	 * Does: creates the select statements needed for bulk inserting
+ 	 */
+ 	protected function generateBulkSelect($tempTableKey)
  	{
  		$sql = "Select ";
  		$first = true;
  		foreach($this->ORM["columns"] as $column)
  		{	
- 			if($column != "id")
+ 			if($column != "id" || $tempTableKey != null)
  			{
  				//sanity check
  				if(!array_key_exists($column, $this->ORM["values"]))
@@ -441,7 +480,7 @@ require_once("MDB2.php");
  		return $sql;
  	}
  	
- 	/*
+ 	/**
  	 * Name: Save
  	 * 
  	 * Does: Saves the object based on the values.  If an ID is given, it will update instead 
@@ -482,7 +521,7 @@ require_once("MDB2.php");
  		return $result;
  	}
  	
- 	/*
+ 	/**
  	 * Name: Delete
  	 * 
  	 * Does: removes record from db based on the values in the object
@@ -525,59 +564,52 @@ require_once("MDB2.php");
  	
  	//TODO: create cascade Save Function? (make it queue up queries and send as one)
  	
- 	//TODO: finish bulkSave
+ 	/**
+ 	 * bulkSave
+ 	 * 
+ 	 * Creates bulk insert/update queries to save arrays of like objects
+ 	 * 
+ 	 * @param array Model objects to save
+ 	 */
  	public function bulkSave($items)
  	{
  		$insertSQL = "";
  		$updateSQL = "";
  		$insertCount = 0;
  		$updateCount = 0;
+ 		$result = array();
+ 		$table = "";
+ 		$tempTableKey = "TempTableKey";
  		
  		foreach($items as $item)
  		{
-	 		if(array_key_exists($item->getId() != ""))
+ 			//check to make sure the collection is all of the same type
+ 			if($table == '')
+ 			{
+ 				$table = $item->getPhORMTable();
+ 			}
+ 			else if($table != $item->getPhORMTable())
+ 			{
+ 				die("PhORM Error: Object array in bulkSave not of the same type.");
+ 			}
+ 			
+	 		if($item->getId() != "")
 	 		{
-	 			
-	 			//if the id is defined, update
-	 			//$sql = $this->generateUpdate();
+	 			$updateSQL .= $this->generateBulkSaveInsert($updateCount, $item, $tempTableKey);
+	 			$updateCount++;
 	 		}
 	 		//else, if the id is not defined, insert.
 	 		else
 	 		{
-	 			if($insertCount == 0)
-	 			{
-	 				$insertSQL = $item->generateBulkInsert() . " ";
-	 			}
-	 	
-	 			$insertSQL = $insertSQL . $item->generateBulkSelect() . " ";
+	 			$insertSQL .= $this->generateBulkSaveInsert($insertCount, $item);
 	 			$insertCount++;
-	 			
-	 			if($insertCount < $this->SYSTEM["dbBatchSize"])
-	 			{
-	 				$insertSQL = $insertSQL . "UNION ALL ";
-	 			}
-	 			else
-	 			{
-	 				$insertCount = 0;
-	 				$insertSQL = $insertSQL . ";";
-	 				$result = $this->db->exec($insertSQL);
- 		
-			 		// Always check that result is not an error
-					if (\PEAR::isError($result)) {
-					    die($result->getMessage());
-					}
-	 			}
 	 		}
 	 	}
-	 	//todo: remove final union all
- 		print($insertSQL);
- 		
- 		//cleanup section, run these if there are any loop iterations that didn't make it in
- 		//the first time.
+	    
  		if($insertCount != 0)
  		{
-	 		$result = $this->db->exec($insertSQL);
-	 		
+ 			$insertSQL .= ";";
+	 		$result["insert"] = $this->db->exec($insertSQL);
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
@@ -586,14 +618,75 @@ require_once("MDB2.php");
 		
 		if($updateCount != 0)
 		{
-			$result = $this->db->exec($updateSQL);
+			$updateSQL .= ";";
+			$updateSQL .= $this->generateBulkUpdateJoin($tempTableKey, $table); 
+			$result["update"] = $this->db->exec($updateSQL);
 	 		
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
 			}
 		}
- 		//return $insertSQL;
+ 		
+ 	}
+ 	
+ 	/**
+ 	 * generateBulkSaveInsert
+ 	 * 
+ 	 * Generates the bulk save insert statement
+ 	 * 
+ 	 * @param int $index index of item/query
+ 	 * @param object $item Item to save
+ 	 * @param string $tempTableKey tempTableName to use for update/joins
+ 	 * 
+ 	 * @return string Sql statement
+ 	 */
+ 	protected function generateBulkSaveInsert($index, $item, $tempTableKey = null)
+ 	{
+ 		$sql = '';
+ 		if($index == 0)
+		{
+			$sql = $item->generateBulkInsert($tempTableKey) . " ";
+		}
+		else
+		{
+			$sql = $sql . "UNION ALL ";
+		}
+
+		$sql = $sql . $item->generateBulkSelect($tempTableKey) . " ";
+		return $sql;
+ 	}
+ 	
+ 	/**
+ 	 * generateBulkUpdateJoin
+ 	 * 
+ 	 * Generates the bulk update join statement
+ 	 * 	 
+ 	 * @param string $tempTableKey tempTableName to use for update/joins
+ 	 * @param string $itemTable table that the object belongs to 
+ 	 * @return string Sql statement
+ 	 */
+ 	protected function generateBulkUpdateJoin($tempTableKey, $itemTable)
+ 	{
+ 		$first = true;
+ 		$sql = "UPDATE " . $itemTable . " oldTable ";
+ 		$sql .= "INNER JOIN " . $tempTableKey . " newTable ";
+ 		$sql .= "   ON oldTable.id = newTable.id";
+ 		$sql .= "   SET ";
+ 		foreach($this->ORM["columns"] as $column)
+ 		{
+ 			if(!$first)
+ 			{
+ 				$sql .= ", ";
+ 			}
+ 			if(isset($this->ORM["values"][$column]))
+ 			{
+ 				$sql .= "oldTable." . $column . " = " . "newTable." . $column;
+ 				$first = false;
+ 			}
+ 		}
+ 		$sql .= ";DROP TABLE " . $tempTableKey . ";";
+ 		return $sql;
  	}
  }
 ?>
