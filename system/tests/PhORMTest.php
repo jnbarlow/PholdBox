@@ -84,5 +84,102 @@ class PhORMTest extends PholdBoxTestBase
 		self::$myObj->load();
 		$this->assertEmpty(self::$myObj->getTitle());
 	}
+	
+	public function testBulkSave_insert()
+	{
+		$objArray = array();
+		for($i = 0; $i < 10; $i++)
+		{
+			$obj = new MyObj();
+			$obj->setName("Test" . $i);
+			$obj->setTitle("Title" . $i);
+			array_push($objArray, $obj);
+		}
+		
+		$objArray[0]->bulkSave($objArray);
+		
+		for($i = 0; $i < 10; $i++)
+		{
+			$objArray[$i]->load();
+			$this->assertNotEquals("", $objArray[$i]->getId());
+			$objArray[$i]->delete();
+		}		
+	}
+	
+	public function testBulkSave_update()
+	{
+		$objArray = array();
+		for($i = 0; $i < 10; $i++)
+		{
+			$obj = new MyObj();
+			$obj->setName("Test" . $i);
+			$obj->setTitle("Title" . $i);
+			array_push($objArray, $obj);
+		}
+		
+		$objArray[0]->bulkSave($objArray);
+		
+		for($i = 0; $i < 10; $i++)
+		{
+			$objArray[$i]->load();
+			$objArray[$i]->setName("Test_update" . $i);
+			$objArray[$i]->setTitle("Title_update" . $i);
+		}
+		
+		$objArray[0]->bulkSave($objArray);
+		
+		for($i = 0; $i < 10; $i++)
+		{
+			$objArray[$i]->load();
+			$this->assertEquals("Test_update" . $i, $objArray[$i]->getName());
+			$objArray[$i]->delete();
+		}				
+	}
+	
+	public function testBulkSave_InsertUpdateMix()
+	{
+		//create 5 rows
+		$objArray = array();
+		for($i = 0; $i < 5; $i++)
+		{
+			$obj = new MyObj();
+			$obj->setName("Test" . $i);
+			$obj->setTitle("Title" . $i);
+			array_push($objArray, $obj);
+		}
+		
+		$objArray[0]->bulkSave($objArray);
+		//reload
+		for($i = 0; $i < 5; $i++)
+		{
+			$objArray[$i]->load();			
+		}
+		
+		//create 5 new rows for insert/update test
+		for($i = 5; $i < 10; $i++)
+		{
+			$obj = new MyObj();
+			array_push($objArray, $obj);
+		}
+		
+		//now "update" things
+		for($i = 0; $i < 10; $i++)
+		{
+			$objArray[$i]->setName("Test_update" . $i);
+			$objArray[$i]->setTitle("Title_update" . $i);
+		}		
+				
+		$objArray[0]->bulkSave($objArray);
+		
+		//now check that everything has id's and the correct "updated" name.
+		for($i = 0; $i < 10; $i++)
+		{
+			$objArray[$i]->load();
+			$this->assertNotEquals("", $objArray[$i]->getId());
+			$this->assertEquals("Test_update" . $i, $objArray[$i]->getName());
+			$objArray[$i]->delete();
+		}				
+	}
+		
 }
 ?>

@@ -564,7 +564,13 @@ require_once("MDB2.php");
  	
  	//TODO: create cascade Save Function? (make it queue up queries and send as one)
  	
- 	//TODO: finish bulkSave
+ 	/**
+ 	 * bulkSave
+ 	 * 
+ 	 * Creates bulk insert/update queries to save arrays of like objects
+ 	 * 
+ 	 * @param array Model objects to save
+ 	 */
  	public function bulkSave($items)
  	{
  		$insertSQL = "";
@@ -591,8 +597,6 @@ require_once("MDB2.php");
 	 		{
 	 			$updateSQL .= $this->generateBulkSaveInsert($updateCount, $item, $tempTableKey);
 	 			$updateCount++;
-	 			//if the id is defined, update
-	 			//$sql = $this->generateUpdate();
 	 		}
 	 		//else, if the id is not defined, insert.
 	 		else
@@ -606,7 +610,6 @@ require_once("MDB2.php");
  		{
  			$insertSQL .= ";";
 	 		$result["insert"] = $this->db->exec($insertSQL);
-	 		print($insertSQL);
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
@@ -617,17 +620,27 @@ require_once("MDB2.php");
 		{
 			$updateSQL .= ";";
 			$updateSQL .= $this->generateBulkUpdateJoin($tempTableKey, $table); 
-			print($updateSQL);
-			/*$result{"update"} = $this->db->exec($updateSQL);
+			$result["update"] = $this->db->exec($updateSQL);
 	 		
 	 		// Always check that result is not an error
 			if (\PEAR::isError($result)) {
 			    die($result->getMessage());
-			}*/
+			}
 		}
  		
  	}
  	
+ 	/**
+ 	 * generateBulkSaveInsert
+ 	 * 
+ 	 * Generates the bulk save insert statement
+ 	 * 
+ 	 * @param int $index index of item/query
+ 	 * @param object $item Item to save
+ 	 * @param string $tempTableKey tempTableName to use for update/joins
+ 	 * 
+ 	 * @return string Sql statement
+ 	 */
  	protected function generateBulkSaveInsert($index, $item, $tempTableKey = null)
  	{
  		$sql = '';
@@ -644,6 +657,15 @@ require_once("MDB2.php");
 		return $sql;
  	}
  	
+ 	/**
+ 	 * generateBulkUpdateJoin
+ 	 * 
+ 	 * Generates the bulk update join statement
+ 	 * 	 
+ 	 * @param string $tempTableKey tempTableName to use for update/joins
+ 	 * @param string $itemTable table that the object belongs to 
+ 	 * @return string Sql statement
+ 	 */
  	protected function generateBulkUpdateJoin($tempTableKey, $itemTable)
  	{
  		$first = true;
