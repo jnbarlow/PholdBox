@@ -25,7 +25,7 @@ class PholdBoxBaseObj
 	/**
 	 * @property array IOC Array of text fields describing the objects you wish to inject
 	 */
-	protected $IOC;
+	protected $IOC = array();
 	
 	/**
 	 * @property array rc This is the Request collection. This object is exposed to the view layer, so that any data rollup can happen

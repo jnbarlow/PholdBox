@@ -24,7 +24,13 @@ require_once("MDB2.php");
  *		   columns - Array of column names.
  *		   types - Array of column types.
  *		   values - Associative array of values.
- *		   links - defines linked items - ManytoOne, OnetoMany, OnetoOne.
+ *		   relationships - defines linked items - OnetoMany, ManytoMany
+ *			
+ *		   ex: "relationships"=>array(array("name" => "Widgets",     - name of link
+									  		"type" => "onetomany",   - type of relationship
+						   					"object" => "Widget"     - IOC object for relationship
+						   				   )
+						   		     )
  * 
  */
  //TODO: set up links logic
@@ -46,9 +52,20 @@ require_once("MDB2.php");
  	 * @property object db Database Object
  	 */
  	protected $db = null;
- 
+ 	
  	function __construct()
  	{
+ 		//go through relationships, add related objects to the IOC array
+ 		if(isset($this->ORM["relationships"]))
+ 		{
+ 			foreach($this->ORM["relationships"] as $rel)
+ 			{
+ 				if(isset($rel["object"])){
+ 					array_push($this->IOC, $rel["object"]);
+ 				}
+ 			}
+ 		}	
+ 		
  		parent::__construct();
  		$current_dsn="";
  		if(array_key_exists("dsn", $this->ORM) && $this->ORM["dsn"] != "")
@@ -65,8 +82,7 @@ require_once("MDB2.php");
  		if(\PEAR::isError($this->db))
  		{
  			die($this->db->getMessage());
- 		}
- 		
+ 		}	
  	}
  	
  	/**
@@ -109,18 +125,30 @@ require_once("MDB2.php");
  	public function __call($name, $arguments)
  	{ 				
  		$action = substr($name, 0, 3);
- 		$prop = lcfirst(substr($name, 3));
+ 		$ucProp = substr($name, 3);
+ 		$prop = lcfirst($ucProp);
+ 		
  		if($action == "get")
  		{
  			if(in_array($prop, $this->ORM["columns"]))
  			{
  				return $this->getValue($prop);
  			}
+ 			else if ($this->isRelationship($ucProp))
+ 			{
+ 				if(!isset($this->instance[$ucProp . "Array"]))
+ 				{
+ 					$relProcessor = "load" . $this->ORM["relationships"][$ucProp]["type"]; 
+ 					$this->$relProcessor($ucProp);
+ 				}
+ 				
+ 				return $this->instance[$ucProp . "Array"]; 				
+ 			}
  			else
  			{
  				return parent::__call($name, $arguments);
  			}
- 		}
+ 		} 		
  		else if($action == "set")
  		{
  			if(in_array($prop, $this->ORM["columns"]))
@@ -132,6 +160,39 @@ require_once("MDB2.php");
  				parent::__call($name, $arguments);
  			}
  		} 		
+ 	}
+ 	
+ 	/**
+ 	 * Loads a OneToMany relationship
+ 	 * 
+ 	 * @param string $name Relationship name
+ 	 */
+ 	protected function loadOneToMany($name)
+ 	{
+ 		$rel = $this->ORM["relationships"][$name];
+ 		$obj = $this->instance[$rel["object"]];
+ 		$setFcn = "set" . ucfirst($rel["linkColumn"]);
+ 		
+ 		$obj->$setFcn($this->getId());
+ 		$this->instance[$name . "Array"] = $obj->load();
+ 	}
+ 	
+ 	/**
+ 	 * isRelationship
+ 	 * 
+ 	 * Checks to see if a given name is a defined relationship
+ 	 * 
+ 	 * @param string $name relationship name
+ 	 * @returns bool 
+ 	 */
+ 	protected function isRelationship($name)
+ 	{
+ 		$retVal = false;
+ 		if(isset($this->ORM["relationships"]) && isset($this->ORM["relationships"][$name]))
+ 		{
+ 			$retVal = true; 			
+ 		}
+ 		return $retVal;
  	}
  	
  	/**

@@ -12,8 +12,14 @@ class MyObj extends \system\PhORM //<- uncomment to enable ORM
 						   "dsn"=>"",
 						   "columns"=>array("id", "name", "title"),
 						   "types"=>array("int(1)", "varchar(25)", "varchar(25)"),
-						   "values"=>array());
-	
+						   "values"=>array(),
+						   "relationships"=>array("Widgets" => array("type" => "OneToMany",
+						   											 "linkColumn" => "myobjid",
+						   											 "object" => "Widget"
+						   							   				)
+						   						 )
+						   	);
+						   		
 	public function getText()
 	{
 		return "In MyObj";

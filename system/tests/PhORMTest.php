@@ -6,16 +6,24 @@
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
 include_once("PholdBoxTestBase.php");
+include_once("model/MyObj.php");
+include_once("model/Widget.php");
 
 class PhORMTest extends PholdBoxTestBase
 {
 	static protected $myObj;
 	static protected $id;
-		
+	static protected $gc;
+	
+	public static function setUpBeforeClass()
+	{
+		parent::setupBeforeClass();
+		self::$gc = array();	
+	}	
+	
 	protected function setUp()
 	{
-		parent::setUp();
-		include_once("model/MyObj.php");
+		parent::setUp();		
 		if(self::$myObj == null)
 		{
 			self::$myObj = new MyObj();
@@ -25,11 +33,15 @@ class PhORMTest extends PholdBoxTestBase
 	public function tearDown()
 	{
 		self::$myObj->clear();
+		foreach(self::$gc as $item)
+		{
+			$item->delete();
+		}		
 	}
 	
 	public static function tearDownAfterClass()
 	{
-		self::$myObj = null;	
+		self::$myObj = null;
 	}
 
 	/**
@@ -180,6 +192,51 @@ class PhORMTest extends PholdBoxTestBase
 			$objArray[$i]->delete();
 		}				
 	}
+	
+	/**
+	 * @dataProvider isRelationshipDataProvider
+	 */
+	public function testIsRelationship($expected, $test)
+	{
+		$obj = new MyObjMock();
+		$this->assertEquals($expected, $obj->isRelationship($test));
+	}
+	
+	public function isRelationshipDataProvider()
+	{
+		return array(
+			array(true, "Widgets"),
+			array(false, "Blarg")
+		);	
+	}
+	
+	public function testLoadOneToMany()
+	{
+		$obj = new MyObj();
+		$obj->setName("Test");
+		$obj->setTitle("Title");
+		$obj->save();
+		array_push(self::$gc, $obj);
 		
+		for($i = 0; $i < 5; $i++)
+		{
+			$widget = new Widget();
+			$widget->setName("Test" . $i);
+			$widget->setMyobjid($obj->getId());
+			$widget->save();
+			array_push(self::$gc, $widget);
+		}
+		
+		$widgets = $obj->getWidgets();
+		$this->assertEquals(5, count($widgets));
+	}		
+}
+
+class MyObjMock extends MyObj
+{
+	public function isRelationship($name)
+	{
+		return parent::isRelationship($name);
+	}
 }
 ?>
