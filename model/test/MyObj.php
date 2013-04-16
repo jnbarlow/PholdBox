@@ -16,4 +16,3 @@ class MyObj extends \system\Model
 		return "In MyObj (test.MyObj) -- Session Val:" . $sessionVal;	
 	}
 }
-?>

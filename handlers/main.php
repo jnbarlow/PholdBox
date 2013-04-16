@@ -18,4 +18,3 @@ class Main extends system\Event
 		$this->renderView();
 	}
 }
-?>

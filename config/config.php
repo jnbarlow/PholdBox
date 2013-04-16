@@ -32,4 +32,3 @@ $SYSTEM["app"]["mysetting"] = "PholdBox Rocks!";
 //-- Site Specific Configs --
 //mac dev
 $SYSTEM["pholdbox.local.dev"]["dsn"]["pholdbox"]["connection_string"] = "mysql://root:root@localhost/pholdbox";
-?>

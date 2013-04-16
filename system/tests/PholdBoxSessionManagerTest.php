@@ -60,4 +60,3 @@ class PholdBoxSessionManagerTest extends PholdBoxTestBase
 		self::$session->delete();
 	}
 }
-?>

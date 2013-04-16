@@ -66,4 +66,3 @@ class EventTest extends PholdBoxTestBase
 	 	$this->assertEquals($this->event->getValue("test"), "1,2,3");
 	 }
 }
-?>
