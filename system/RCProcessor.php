@@ -38,4 +38,3 @@ class RCProcessor
 		return $this->rc;
 	}
 }
-?>

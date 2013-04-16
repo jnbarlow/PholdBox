@@ -23,4 +23,3 @@ class PholdBoxBaseObjTest extends PholdBoxTestBase
 		$this->assertEquals($GLOBALS["SYSTEM"]["debugger"]["userStack"][0]["object"], "main.home");		
 	}
 }
-?>

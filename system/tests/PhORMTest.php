@@ -239,4 +239,3 @@ class MyObjMock extends MyObj
 		return parent::isRelationship($name);
 	}
 }
-?>

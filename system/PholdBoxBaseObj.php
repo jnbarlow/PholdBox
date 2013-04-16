@@ -237,4 +237,3 @@ class PholdBoxBaseObj
 	 	return $GLOBALS["SESSION"]->getFromSession($key);
 	 }
 }
-?>

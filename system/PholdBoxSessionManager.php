@@ -87,4 +87,3 @@ class PholdBoxSessionManager extends \system\PhORM
 		return $this->session[$key];	
 	}
 }
-?>

@@ -304,4 +304,3 @@ class Event extends PholdBoxBaseObj
 	   		}
 	   }
 }
-?>

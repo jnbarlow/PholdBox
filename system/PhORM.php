@@ -750,4 +750,4 @@ require_once("MDB2.php");
  		return $sql;
  	}
  }
-?>
+ 

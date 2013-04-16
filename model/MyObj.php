@@ -25,4 +25,3 @@ class MyObj extends \system\PhORM //<- uncomment to enable ORM
 		return "In MyObj";
 	}
 }
-?>
