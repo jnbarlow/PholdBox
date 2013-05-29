@@ -84,6 +84,13 @@ class PholdBoxSessionManager extends \system\PhORM
 	
 	public function getFromSession($key)
 	{
-		return $this->session[$key];	
+		$returnVal = "";
+		
+		if(isset($this->session[$key]))
+		{
+			$returnVal = $this->session[$key];
+		}
+		
+		return $returnVal;	
 	}
 }
