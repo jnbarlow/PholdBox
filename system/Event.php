@@ -228,8 +228,13 @@ class Event extends PholdBoxBaseObj
 	   */
 	   public function renderDebugger()
 	   {
+	   		$showDebugger = true;
+	   		if(isset($this->SYSTEM["debugger"]["showDebugger"]))
+	   		{
+	   			$showDebugger = $this->SYSTEM["debugger"]["showDebugger"];
+	   		}
 	   		$startTime = microtime();
-	   		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]) && $this->useLayout)
+	   		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]) && $showDebugger)
 	   		{
 	   			$html  = "<script>";
 	   			$html .= 	"function toggleDebugPanel(node){";
