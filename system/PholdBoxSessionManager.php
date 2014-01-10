@@ -71,7 +71,7 @@ class PholdBoxSessionManager extends \system\PhORM
 				die();
 			}			
 		}
-		$this->session = \json_decode($this->getSession(), true);
+		$this->session = json_decode($this->getSession(), true);
 	}
 	
 	public function pushToSession($key, $value)
