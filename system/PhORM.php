@@ -496,17 +496,20 @@ require_once("MDB2.php");
       */
      public function save()
      {
+        
          //capture debug timing
         if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
         {
             $startTime = microtime();
         }
-        
+         $isUpdate = false;
+         
          $sql = "";
          if(array_key_exists("id", $this->ORM["values"]) && $this->ORM["values"]["id"] != "")
          {
              //if the id is defined, update
              $sql = $this->generateUpdate();
+             $isUpdate = true;
          }
          //else, if the id is not defined, insert.
          else
@@ -525,7 +528,11 @@ require_once("MDB2.php");
         {
             $this->pushDebugStack(get_class($this) .  ".save()", "Function", microtime() - $startTime);
         }
-        $this->setId($this->db->lastInsertID());
+        if(!$isUpdate)
+        {
+            $this->setId($this->db->lastInsertID());
+        }
+        
          return $result;
      }
      
