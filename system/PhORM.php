@@ -639,7 +639,7 @@ require_once("MDB2.php");
             foreach ($updateSQLArray as $sql){
             	$result["update"] = $this->db->exec($sql);
             }
-            $result["update"] = $this->db->exec($updateSQL);
+            
              // Always check that result is not an error
             if (\PEAR::isError($result)) {
                 die($result->getMessage());
