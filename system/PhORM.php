@@ -702,7 +702,7 @@ require_once("MDB2.php");
              $first = false;
              
          }
-         $sql .= ";DROP TABLE " . $tempTableKey . ";";
+         $sql .= ";DROP TABLE " . $tempTableKey;
          return $sql;
      }
  }
