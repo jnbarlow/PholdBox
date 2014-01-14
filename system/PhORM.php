@@ -626,8 +626,8 @@ require_once("MDB2.php");
              $insertSQL .= ";";
              $result["insert"] = $this->db->exec($insertSQL);
              // Always check that result is not an error
-            if (\PEAR::isError($result)) {
-                die($result->getMessage());
+            if (\PEAR::isError($result["insert"])) {
+                die($result["insert"]->getMessage());
             }
         }
         
@@ -641,8 +641,8 @@ require_once("MDB2.php");
             }
             
              // Always check that result is not an error
-            if (\PEAR::isError($result)) {
-                die($result->getMessage());
+            if (\PEAR::isError($result["update"])) {
+                die($result["update"]->getMessage());
             }
         }
          
