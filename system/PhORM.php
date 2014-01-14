@@ -634,9 +634,12 @@ require_once("MDB2.php");
         if($updateCount != 0)
         {
             $updateSQL .= ";";
-            $updateSQL .= $this->generateBulkUpdateJoin($tempTableKey, $table); 
+            $updateSQL .= $this->generateBulkUpdateJoin($tempTableKey, $table);
+            $updateSQLArray = explode(";", $updateSQL);
+            foreach ($updateSQLArray as $sql){
+            	$result["update"] = $this->db->exec($sql);
+            }
             $result["update"] = $this->db->exec($updateSQL);
-             
              // Always check that result is not an error
             if (\PEAR::isError($result)) {
                 die($result->getMessage());
@@ -694,11 +697,10 @@ require_once("MDB2.php");
              {
                  $sql .= ", ";
              }
-             if(isset($this->ORM["values"][$column]))
-             {
-                 $sql .= "oldTable." . $column . " = " . "newTable." . $column;
-                 $first = false;
-             }
+            
+             $sql .= "oldTable." . $column . " = " . "newTable." . $column;
+             $first = false;
+             
          }
          $sql .= ";DROP TABLE " . $tempTableKey . ";";
          return $sql;
