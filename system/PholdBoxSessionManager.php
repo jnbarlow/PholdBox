@@ -42,7 +42,8 @@ class PholdBoxSessionManager extends \system\PhORM
 		
 		if($checksum1 != $hashedChecksum1 || $checksum2 != $hashedChecksum2)
 		{
-			$this->setSessionId(uniqid("", true));
+            $sessionId = uniqid("", true);
+			$this->setSessionId($sessionId);
 			setcookie("PHPSESSID", $sessionId);
 			setcookie("CHECKSUM1", $hashedChecksum1);
 			setcookie("CHECKSUM2", $hashedChecksum2);
