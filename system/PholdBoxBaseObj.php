@@ -20,7 +20,7 @@ class PholdBoxBaseObj
 	/**
 	 * @property array SYSTEM Static array of system variables
 	 */
-	static protected $SYSTEM = array();
+	protected $SYSTEM = array();
 	
 	/**
 	 * @property array IOC Array of text fields describing the objects you wish to inject
