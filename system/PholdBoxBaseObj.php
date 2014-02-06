@@ -101,6 +101,7 @@ class PholdBoxBaseObj
 			$stReturn->modelPath = "model/" . $modelClass . ".php";
 		}	
 		$stReturn->pathArray = $pathArray;
+        $stReturn->modelDotClass = str_replace("\\", ".", $stReturn->modelClass);
 		
 		return $stReturn;
 	}
@@ -154,13 +155,13 @@ class PholdBoxBaseObj
 	   			{
 	   				$startTime = microtime();
 	   			}
-				
-				$this->instance[$resolved->modelClass] = new $resolved->modelClass;
+
+				$this->instance[$resolved->modelDotClass] = new $resolved->modelClass;
 				
 				//capture debug output
 				if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
 	   			{	
-					$this->pushDebugStack($this->instance[$resolved->modelClass], "Model", microtime() - $startTime);
+					$this->pushDebugStack($this->instance[$resolved->modelDotClass], "Model", microtime() - $startTime);
 	   			}
 			}
 		}
