@@ -70,14 +70,15 @@ class Event extends PholdBoxBaseObj
 	{
 		$rc = $this->rc;
 		ob_start();
+        $dotReturn = $this->dotResolver($this->view);
 		if($this->useLayout)
 		{
-			$this->renderLayout("views/" . $this->view . ".php");
+			$this->renderLayout($dotReturn->viewPath);
 		}
 		else
 		{
 			$this->SYSTEM["debugger"]["showDebugger"] = false;
-			include("views/" . $this->view . ".php");
+			include($dotReturn->viewPath);
 		}
 		$this->generateETag(ob_get_clean());
 	}

@@ -93,12 +93,14 @@ class PholdBoxBaseObj
 		if($dotCount > 0)
 		{
 			$stReturn->modelPath = "model/" . $pathArray[0] . "/" . $modelClass . ".php";
+            $stReturn->viewPath = "views/" . $pathArray[0] . "/" . $modelClass . ".php";
 			$modelNamespace = str_replace("/", "\\", $pathArray[0]) . "\\";
 			$stReturn->modelClass = $modelNamespace . $stReturn->modelClass;
 		}
 		else
 		{
 			$stReturn->modelPath = "model/" . $modelClass . ".php";
+            $stReturn->viewPath = "views/" . $modelClass . ".php";
 		}	
 		$stReturn->pathArray = $pathArray;
         $stReturn->modelDotClass = str_replace("\\", ".", $stReturn->modelClass);
