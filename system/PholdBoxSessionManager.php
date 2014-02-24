@@ -70,8 +70,13 @@ class PholdBoxSessionManager extends \system\PhORM
 					  KEY `session_idx` (`sessionId`,`dateModified`)<br>
 					) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;";
 				die();
-			}			
+			}
 		}
+        
+        //We have a valid session, so update the dateModified so that this won't get picked up while 
+        //pruning
+        $this->setDateModified(strtotime("now"));
+        $this->save();
 		$this->session = json_decode($this->getSession(), true);
 	}
 	
