@@ -73,11 +73,14 @@ class PholdBoxSessionManager extends \system\PhORM
 			}
 		}
         
-        //We have a valid session, so update the dateModified so that this won't get picked up while 
-        //pruning
-        $this->setDateModified(strtotime("now"));
-        $this->save();
+        
 		$this->session = json_decode($this->getSession(), true);
+        if($this->session != ""){
+            //We have a valid session, so update the dateModified so that this won't get picked up while 
+            //pruning
+            $this->setDateModified(strtotime("now"));
+            $this->save();
+        }
 	}
 	
 	public function pushToSession($key, $value)
