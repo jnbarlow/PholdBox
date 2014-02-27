@@ -212,6 +212,7 @@ class Event extends PholdBoxBaseObj
 	  public function runEvent($event)
 	  {
 	  		header("Location: ?event=" . $event);
+            die();
 	  }
 	  
 	  /**
