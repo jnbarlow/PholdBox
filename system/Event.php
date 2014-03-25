@@ -92,6 +92,7 @@ class Event extends PholdBoxBaseObj
 	{
 		$eTag = hash("sha1", $content);
 		header("ETag: " . $eTag);
+		header("Expires: -1"); //needed to keep IE from aggressively caching ajax calls.
 		if(isset($_SERVER["HTTP_IF_NONE_MATCH"]) && (isset($this->SYSTEM["debug"]) && !$this->SYSTEM["debug"]))
 		{
 			if($eTag == $_SERVER["HTTP_IF_NONE_MATCH"])
