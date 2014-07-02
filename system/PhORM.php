@@ -208,7 +208,7 @@ require_once("MDB2.php");
          
          // Always check that result is not an error
         if (\PEAR::isError($result)) {
-            die($result->getMessage());
+            throw new \Exception($result->getMessage());
         }
         
         return $result;
