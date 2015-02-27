@@ -478,7 +478,7 @@ require_once("MDB2.php");
                       $sql = $sql . ", ";
                  }
                  
-                 $sql = $sql . "'" . $this->ORM["values"][$column] . "'";
+                 $sql = $sql . "'" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
                  $first=false;
              }
              
