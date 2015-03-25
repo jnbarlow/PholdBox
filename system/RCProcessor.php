@@ -22,6 +22,14 @@ class RCProcessor
 	*/
 	public function __construct()
 	{
+        //add support for angularJS posting of JSON
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($_POST)){
+             $decoded = json_decode(file_get_contents('php://input'), true);
+             if($decoded != null){
+                 $_POST = $decoded;
+             }
+        }
+        
 		while(list($key, $val) = each($_GET))
 		{
 			$this->rc[$key] = $val;
