@@ -11,6 +11,7 @@ class AppTestBase extends PHPUnit_Framework_TestCase
 	protected $event;
 	protected function setUp(){
 		$_SERVER["SERVER_NAME"] = "unit.test";
+        $_SERVER["REQUEST_METHOD"] = "";
 		require("config/config.php");		
 		
 		//look for site specific configs and merge them.
