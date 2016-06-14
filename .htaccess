@@ -1,0 +1,4 @@
+Options +FollowSymlinks
+RewriteEngine on
+RewriteRule (.*\.[A-z]*)(\??[^\s\?]*)? $1$2 [L]
+RewriteRule ^([A-z]*)/([A-z]*) index.php?event=$1.$2\&%{QUERY_STRING}
