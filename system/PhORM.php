@@ -323,7 +323,6 @@ require_once("MDB2.php");
         $sql = "update ". $this->ORM["tableName"] . " set ";
         $first = true;
         $params = array();
-        $types = array();
 
         foreach($this->ORM["columns"] as $column)
         {
@@ -342,7 +341,6 @@ require_once("MDB2.php");
                 }
                 $sql = $sql . $column . " = ?";
                 $params[] = $this->ORM["values"][$column];
-                $types[] = 'text';
                 $first=false;
             }
 
@@ -350,7 +348,6 @@ require_once("MDB2.php");
         
         $sql = $sql . " where id = ?;";
         $params[] = $this->ORM["values"]["id"];
-        $types[] = 'text';
         
         $statement = $this->db->prepare($sql, null, MDB2_PREPARE_MANIP);
          
