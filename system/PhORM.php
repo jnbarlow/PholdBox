@@ -157,6 +157,7 @@ require_once("MDB2.php");
          $first = true;
          $wFirst = true;
          $where = "";
+         $params = array();
          foreach($this->ORM["columns"] as $column)
          {
              if(!$first)
@@ -173,14 +174,16 @@ require_once("MDB2.php");
                  }
                 if($fts)
                 {
-                    $where = $where . $column . " like '%" . str_replace("'", "''", $this->ORM["values"][$column]) . "%'";
+                    $where = $where . $column . " like ?";
+                    $params[] = '%' . $this->ORM["values"][$column] . '%';
                 }
                 else
                 {
-                    $where = $where . $column . "= '" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
+                    $where = $where . $column . "= ?";
+                    $params[] = $this->ORM["values"][$column];
                 }
-
-                 $wFirst = false;
+                
+                $wFirst = false;
              }
          }
          $sql = $sql . " from " . $this->ORM["tableName"];
@@ -188,8 +191,9 @@ require_once("MDB2.php");
          {
              $sql = $sql . " where " . $where;
          }
+        $statement = $this->db->prepare($sql, MDB2_PREPARE_RESULT);
 
-         return $sql;
+        return $statement->execute($params);
      }
 
      /**
@@ -238,9 +242,7 @@ require_once("MDB2.php");
              $bulk = true;
          }
 
-         $sql = $this->generateSelect($fts);
-
-         $result = $this->db->query($sql);
+         $result = $this->generateSelect($fts);
 
          // Always check that result is not an error
         if (\PEAR::isError($result)) {
@@ -311,73 +313,96 @@ require_once("MDB2.php");
          }
      }
 
-     protected function generateUpdate()
-     {
-         $sql = "update ". $this->ORM["tableName"] . " set ";
-         $first = true;
+    /**
+     * Generates Update statement and returns the result
+     *
+     * @return void
+     */
+    protected function generateUpdate()
+    {
+        $sql = "update ". $this->ORM["tableName"] . " set ";
+        $first = true;
+        $params = array();
+        $types = array();
 
-         foreach($this->ORM["columns"] as $column)
-         {
-             if($column != "id")
-             {
-                 //sanity check
-                 if(!array_key_exists($column, $this->ORM["values"]))
-                 {
-                     print(get_class($this) . " - Missing value: $column");
-                     exit;
-                 }
+        foreach($this->ORM["columns"] as $column)
+        {
+            if($column != "id")
+            {
+                //sanity check
+                if(!array_key_exists($column, $this->ORM["values"]))
+                {
+                    print(get_class($this) . " - Missing value: $column");
+                    exit;
+                }
 
-                 if(!$first)
-                 {
-                      $sql = $sql . ", ";
-                 }
-                 $sql = $sql . $column . " = '" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
-                 $first=false;
-             }
+                if(!$first)
+                {
+                    $sql = $sql . ", ";
+                }
+                $sql = $sql . $column . " = ?";
+                $params[] = $this->ORM["values"][$column];
+                $types[] = 'text';
+                $first=false;
+            }
 
-         }
+        }
+        
+        $sql = $sql . " where id = ?;";
+        $params[] = $this->ORM["values"]["id"];
+        $types[] = 'text';
+        
+        $statement = $this->db->prepare($sql, null, MDB2_PREPARE_MANIP);
+         
+        return $statement->execute($params);
+    }
 
-         $sql = $sql . " where id = " . $this->ORM["values"]["id"] . ";";
+    /**
+     * generates Insert statement and returns the results
+     *
+     * @return void
+     */
+    protected function generateInsert()
+    {
+        $sql = "insert into ". $this->ORM["tableName"];
+        $first = true;
+        $colNames = " (";
+        $values = " values (";
+        $params = array();
+        $types = array();
 
-         return $sql;
-     }
+        foreach($this->ORM["columns"] as $column)
+        {
+            if($column != "id")
+            {
+                //sanity check
+                if(!array_key_exists($column, $this->ORM["values"]))
+                {
+                    print(get_class($this) . " - Missing value: $column");
+                    exit;
+                }
 
-     protected function generateInsert()
-     {
-         $sql = "insert into ". $this->ORM["tableName"];
-         $first = true;
-         $colNames = " (";
-         $values = " values (";
-         foreach($this->ORM["columns"] as $column)
-         {
-             if($column != "id")
-             {
-                 //sanity check
-                 if(!array_key_exists($column, $this->ORM["values"]))
-                 {
-                     print(get_class($this) . " - Missing value: $column");
-                     exit;
-                 }
+                if(!$first)
+                {
+                    $colNames = $colNames . ", ";
+                    $values = $values . ", ";
+                }
 
-                 if(!$first)
-                 {
-                      $colNames = $colNames . ", ";
-                      $values = $values . ", ";
-                 }
+                //$colNames = $colNames . "'" . $column . "'";
+                $colNames = $colNames . $column;
+                $values = $values . "?";
+                $first=false;
+                $params[] = $this->ORM["values"][$column];
+            }
+        }
+        $colNames = $colNames . ")";
+        $values = $values . ")";
+        $sql = $sql . $colNames . $values . ";";
 
-                 //$colNames = $colNames . "'" . $column . "'";
-                 $colNames = $colNames . $column;
-                 $values = $values . "'" . str_replace("'", "''", $this->ORM["values"][$column]) . "'";
-                 $first=false;
-             }
-
-         }
-         $colNames = $colNames . ")";
-         $values = $values . ")";
-         $sql = $sql . $colNames . $values . ";";
-
-         return $sql;
-     }
+        $statement = $this->db->prepare($sql, null, MDB2_PREPARE_MANIP);
+        
+        return $statement->execute($params);
+    }
 
      //TODO: Finish this
      protected function generateBulkInsert($tempTableKey)
@@ -496,7 +521,7 @@ require_once("MDB2.php");
       */
      public function save()
      {
-
+        $result = null;
          //capture debug timing
         if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
         {
@@ -508,16 +533,14 @@ require_once("MDB2.php");
          if(array_key_exists("id", $this->ORM["values"]) && $this->ORM["values"]["id"] != "")
          {
              //if the id is defined, update
-             $sql = $this->generateUpdate();
+             $result = $this->generateUpdate();
              $isUpdate = true;
          }
          //else, if the id is not defined, insert.
          else
          {
-             $sql = $this->generateInsert();
+             $result = $this->generateInsert();
          }
-
-         $result = $this->db->exec($sql);
 
          // Always check that result is not an error
         if (\PEAR::isError($result)) {
