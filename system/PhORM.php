@@ -366,7 +366,6 @@ require_once("MDB2.php");
         $colNames = " (";
         $values = " values (";
         $params = array();
-        $types = array();
 
         foreach($this->ORM["columns"] as $column)
         {
