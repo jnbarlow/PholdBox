@@ -307,7 +307,7 @@ require_once("MDB2.php");
      {
          foreach($this->ORM["columns"] as $column)
          {
-             $this->setValue($column, "");
+             $this->setValue($column, null);
          }
      }
 
