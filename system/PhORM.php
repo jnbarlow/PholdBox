@@ -165,7 +165,7 @@ require_once("MDB2.php");
              }
              $sql = $sql . $column;
              $first=false;
-             if(array_key_exists($column, $this->ORM["values"]) && $this->ORM["values"][$column] !== '')
+             if(array_key_exists($column, $this->ORM["values"]) && !is_null($this->ORM["values"][$column]))
              {
                  if(!$wFirst)
                  {
