@@ -127,13 +127,18 @@ class Event extends PholdBoxBaseObj
 			print("Invalid Handler: $event");
 			return -1;
 		}
-		
+
+		//look for properly cased class name
+		$contents = file_get_contents($handler);
+		preg_match('/^[cC]lass ([a-zA-z0-9]*)/m', $contents, $matches);
+		$className = $matches[1];
+
 		//capture debug timing
 		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
 		{
 			$startTime = microtime();
 		}
-		$this->evtObj = new $resolved->evtClass($this->layout);
+		$this->evtObj = new $className($this->layout);
 		
 		//capture debug output
 		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
@@ -160,7 +165,7 @@ class Event extends PholdBoxBaseObj
 			$startTime = microtime();
 			$this->pushDebugStack($resolved->evtClass . "." . $pathArray[1] . "() Start", "Function", "");
 		}
-		$this->evtObj->$pathArray[1]();
+		$this->evtObj->{$pathArray[1]}();
 		
 		//capture debug output
 		if((isset($this->SYSTEM["debug"]) && $this->SYSTEM["debug"]))
