@@ -142,14 +142,9 @@ class PholdBoxBaseObj
 				$resolved = $this->dotResolver($object);
 				$model = $resolved->modelPath;
 				
-				if(file_exists($model))
+				if(!$this->loadResource($model))
 				{
-					include_once($model);
-				}
-				else
-				{
-					print("Invalid Model: $object");
-					exit;
+					throw new \Exception("Invalid Model: $object");
 				}
 				
 				//capture debug timing
@@ -168,6 +163,45 @@ class PholdBoxBaseObj
 			}
 		}
 	} 
+
+	/**
+	 * loads the object to be injected
+	 *
+	 * @param [type] $model
+	 * @return true if found, false if not
+	 */
+	protected function loadResource($object)
+	{
+		$retVal = false;
+
+		if(file_exists($object))
+		{
+			include_once($object);
+			$retVal = true;
+		}
+		return $retVal;
+	}
+
+	/**
+	 * provides method of setting the IOC array
+	 *
+	 * @param array $IOC
+	 * @return void
+	 */
+	public function setIOC(array $IOC)
+	{
+		$this->IOC = $IOC;
+	}
+
+	/**
+	 * provides method of reading the IOC array
+	 *
+	 * @return void
+	 */
+	public function getIOC()
+	{
+		return $this->IOC;
+	}
 	
 	//TODO: implement for chaining?
 	public function __call($name, $arguments)
@@ -226,7 +260,7 @@ class PholdBoxBaseObj
 	  */
 	 public function setSessionValue($key, $value)
 	 {
-	 	$GLOBALS["SESSION"]->pushToSession($key, $value);	
+	 	$this->getSessionObject()->pushToSession($key, $value);	
 	 }
 	 
 	 /**
@@ -237,6 +271,16 @@ class PholdBoxBaseObj
 	  */
 	 public function getSessionValue($key)
 	 {
-	 	return $GLOBALS["SESSION"]->getFromSession($key);
+	 	return $this->getSessionObject()->getFromSession($key);
+	 }
+
+	 /**
+	  * returns an instance of the global session object. Testing utility function.
+	  *
+	  * @return void
+	  */
+	 protected function getSessionObject()
+	 {
+		 return $GLOBALS['SESSION'];
 	 }
 }

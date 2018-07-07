@@ -14,7 +14,7 @@ if(isset($SYSTEM[$_SERVER["SERVER_NAME"]]))
 	$SYSTEM = array_replace_recursive($SYSTEM, $SYSTEM[$_SERVER["SERVER_NAME"]]);
 }
 
-$VERSION = "1.0 beta";
+$VERSION = "2.0";
 
 $RCProcessor = new system\RCProcessor();
 $GLOBALS["rc"] = $RCProcessor->getCollection();

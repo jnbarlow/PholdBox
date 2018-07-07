@@ -4,9 +4,11 @@ is designed to make authoring sites an easy, fun process with structure and logi
 
 Pholdbox is free to use, and contributions are welcome.
 
-The framework requires PEAR and PHP 5.3 and above, so keep that in mind :).  The main system files 
+The framework requires PDO and PHP 7 and above, so keep that in mind :).  The main system files 
 (in /system) are fairly well documented and should give you a decent idea about how to use it, as 
-will the sample project skeleton and content.  
+will the sample project skeleton and content.
+
+Also included is a vagrant config to get a test environment up and running quickly.  
 
 Note: Any modifications to the framework must be submitted for consideration in inclusion to the 
 framework.

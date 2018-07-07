@@ -1,0 +1,7 @@
+<phpunit bootstrap="PholdBoxTestBase.php">
+  <testsuites>
+    <testsuite name="system tests">
+      <directory>system</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
