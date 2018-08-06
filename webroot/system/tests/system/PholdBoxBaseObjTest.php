@@ -47,6 +47,12 @@ class PholdBoxBaseObjTest extends PholdBoxTestBase
 				'modelClass' => 'main\\home\\long\\path',
 				'modelPath' => 'model/main/home/long/path.php',
 				'viewPath' => 'views/main/home/long/path.php'
+			)),
+			array('main/home/long/path', array(
+				'evtClass' => 'long',
+				'modelClass' => 'main\\home\\long\\path',
+				'modelPath' => 'model/main/home/long/path.php',
+				'viewPath' => 'views/main/home/long/path.php'
 			))
 		);
 	}

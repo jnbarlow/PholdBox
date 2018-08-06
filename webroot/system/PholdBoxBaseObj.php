@@ -71,6 +71,7 @@ class PholdBoxBaseObj
 	{
 		$stReturn = new \stdClass();
 		$evtClass = "";
+		$path = str_replace("/", ".", $path);
 		
 		$dotCount = substr_count($path, ".");
 		$pathArray = explode(".", $path);
