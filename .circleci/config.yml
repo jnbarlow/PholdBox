@@ -29,7 +29,9 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: composer install -n --prefer-dist
+      - run: 
+          name: Run Composer
+          command: composer install -n --prefer-dist
 
       - save_cache:
           key: v1-dependencies-{{ checksum "composer.json" }}
@@ -37,6 +39,10 @@ jobs:
             - ./vendor
 
       # run tests with phpunit or codecept
-      - run: sudo docker-php-ext-install pdo_mysql
-      - run: cd webroot/system/tests; ../../../vendor/phpunit/phpunit/phpunit
+      - run:
+          name: Install pdo_mysql
+          command: sudo docker-php-ext-install pdo_mysql
+      - run: 
+          name: PHPUnit
+          command: cd webroot/system/tests; ../../../vendor/phpunit/phpunit/phpunit
      
