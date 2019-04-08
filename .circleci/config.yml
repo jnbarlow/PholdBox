@@ -60,7 +60,5 @@ jobs:
       #- run: ./vendor/bin/phpunit
       #- run: ./vendor/bin/codecept build
       #- run: ./vendor/bin/codecept run
-      - run: pwd
-      - run: cd webroot/system/tests
-      - run: pwd
-      - run: ../../../vendor/phpunit/phpunit/phpunit
+      - run: cd webroot/system/tests; ../../../vendor/phpunit/phpunit/phpunit
+     
