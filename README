@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/jnbarlow/pholdbox.svg?style=svg)](https://circleci.com/gh/jnbarlow/pholdbox)
+
 Pholdbox is a lightweight php framework that includes IOC (inversion of control) and an ORM layer.  It 
 is designed to make authoring sites an easy, fun process with structure and logical control paths 
 (sure, we all say that about our frameworks) :). It is based on Coldbox, a ColdFusion framework.
