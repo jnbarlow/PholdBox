@@ -286,7 +286,8 @@ The `<?php include($view);?>` statement is where the pre-selected view is loaded
     * if you pass save an array of objects, it does a bulk save. Must be like objects
   * load with `$obj->load()`
     * if you give an id, it will load that specific ID (all tables must have an id)
+    * if you set any other value on the object, it does an AND lookup
 * Clustering & Session management
   * clustering works via storing the session on the server
   * see `model/test/MyObj.php` for an example of how to use `getSessionValue` and `setSessionValue`
-    * if you set any other value on the object, it does an AND lookup
+    
