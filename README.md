@@ -21,6 +21,34 @@ Note: Any enhancements/modifications/contributions you submit to the project are
 expectation for compensation (just maybe some fame, no fortune).  
 
 Check the Releases section for the latest releases. Master may or may not be stable.
+# Contents
+1. [Getting Started](#getting-started)
+    1. [Anatomy of a PholdBox Site](#anatomy-of-a-pholdbox-site)
+2. [config.php](#configphp)
+    1. [Keys](#keys)
+    1. [Example Config](#example-config)
+3. [Request Collection](#request-collection)
+    1. [What is IN the RC?](#what-is-in-the-rc)
+    2. [How do I access the RC?](#how-do-i-access-the-rc)
+4. [Handlers](#handlers)
+    1. [Basic Function List](#basic-function-list)
+    2. [The prevent()](#the-preevent)
+    3. [runEvent()](#runevent)
+    4. [RC Funtions](#rc-functions)
+5. [Views](#views)
+    1. [How do I use a View?](#how-do-i-use-a-view)
+    2. [What does a View look like?](#what-does-a-view-look-like)
+6. [Layouts](#layouts)
+    1. [What is a layout?](#what-is-a-layout)
+7. [Models](#models)
+8. [IOC](#ioc)
+    1. [How does IOC work?](#how-does-ioc-work)
+9. [PhORM](#phorm)
+    1. [Loading Data](#loading-data)
+    2. [Saving Data](#saving-data)
+    3. [Extras](#extras)
+10. [Clustering and Session Management](#clustering-and-session-management)
+    1. [The Session](#the-session)
 
 # Getting Started
 Before you get started you need to make sure you're using PHP 7 and above and PDO.  Currently, only MySQL is supported.
@@ -315,7 +343,7 @@ protected $ORM = array("tableName"=>"test",
 ```
 
 This array lets PhORM know the database layout for the table you are modeling.  After this is defined, you can call gets and sets on those columns.  For instance, if you want to set the id of the object: `$this->setId(<value>)`.  Likewise, if you want to get the id: `$this->getId()`
-#### Loading data
+### Loading data
 AFter the database spec is defined, you need to load some data. There are a few ways to load data in PhORM. If you want a specific model, set the id and call `load()`
 ```
     $this->setId(1);
@@ -337,12 +365,12 @@ This sets the id, then PhORM looks for that specific id when it does a select.  
 
 If the result is one item, that item is set directly to the model you are working with.  If the result is multiple things, then `load` returns an array of those objects.
 
-#### Saving Data
+### Saving Data
 To save, it's as simple as calling `$this->save()` on the model you wish to persist.  If you have an array of like models, you can bulk save the whole thing by calling `$this->bulkSave($itemArray)`.  This function is preferable to calling save individually because it generates one statement to send to the databse and executes orders of magnitude faster.  
 
 If you call the individual `save()` function, the generated ID from the database is automatically set on the object.
 
-#### Extras
+### Extras
 If you need to clear database data off of your object, you can call `$this->clear()`.  Likewise, if you need to do a query that is a bit more complicated than a simple load (like dependency joins, etc), you can pass your custom SQL to `$this->query()`.  I've thought about including a framework for loading linked objects, but I haven't been able to think of a good way of doing it in a sufficiently generic enough way (so you have to do this manually for now).  The best way to do this is to find what you need, then loop over your results and assign them to new model objects and return the initialized objects.
 
 There is also a `toObject()` function that comes with PhORM objects that dumps a `stdObj` version of the database data for use with JSON conversions
