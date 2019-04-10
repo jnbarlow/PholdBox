@@ -275,19 +275,83 @@ Much like views, the layouts also have access to the Request Collection scope, s
 
 The `<?php include($view);?>` statement is where the pre-selected view is loaded in the layout.
 
-# to be documented... (documented better at least)
-* Models: see objects in the models folder of the skeleton project for examples
-* IOC: Look at the example handler for how to add things in to the IOC array
-  * TL;DR: things in the ioc array are loaded from the model folder
-  * you can load them via `$this->Instance['modelname']`
-* Phorm: see system/PhORM for some phorm docs
-  * Access table columns via `$obj->getColName()` and `$obj->setColName('value')`
-  * save with `$obj->save()`
-    * if you pass save an array of objects, it does a bulk save. Must be like objects
-  * load with `$obj->load()`
-    * if you give an id, it will load that specific ID (all tables must have an id)
-    * if you set any other value on the object, it does an AND lookup
-* Clustering & Session management
-  * clustering works via storing the session on the server
-  * see `model/test/MyObj.php` for an example of how to use `getSessionValue` and `setSessionValue`
+# Models
+Models (located in the model directory) is where the data model or business logic resides.  You should extend `\system\Model` to get access to things in the `PholdboxBaseObj` (like IOC).  If this is a datamodel, extend `\system\PhORM`
+
+Models can include other models, or other utilities through include statements.  Separating some of these third party libraries out into models helps keep your application lean and only loads the library when neccessary.
+
+# IOC
+The inversion of control (IOC) layer of PholdBox is one of my favorite things.  All you have to do is specify the class name of the model you want to load, and the system automatically loads it whenever that path of code is executed.  The benefit here is that instead of having to include EVERYTHING in some central file, the models and handlers know exactly what THEY need to work, and dynamically load them as the request is processed.
+
+### How Does IOC work?
+To set up the IOC framework, you first need to extend `\system\Model` (if using a model, PhORM objects also have access to the IOC), or `\system\Event` (if using a handler).  
+
+Next, you need to define an IOC array in your model/handler.  The members of this array are class names to dynamically load:
+
+```
+protected $IOC = array("MyClass");
+```
+
+This directs the IOC framework to look in the `model` folder for a file named `MyClass.php` and load the `MyClass` class.  The resultant object is inserted into `$this->instance['MyClass']`.
+
+You can also use subfolders to further arrange your models.  To do so, include dot notation in your IOC definition:
+
+```
+protected $IOC = array("MyClass", "subfolder1.MyClass", "subfolder1.sub2.MyClass");
+```
+Just like before, the resultant object is stored based on the array key in the IOC array: `$this->instance["subfolder1.MyClass"]`
+
+# PhORM
+PhORM is the built in ORM framework for PholdBox.  It abstracts away some basic DB read/write functionality to help you quickly build apps.
+
+To get started, you need to extend `\system\PhORM` in your model.  After that is done, you need to define an `$ORM` variable in your application:
+
+```
+protected $ORM = array("tableName"=>"test",
+   "dsn"=>"",
+   "columns"=>array("id", "name", "title"),
+   "types"=>array("int(1)", "varchar(25)", "varchar(25)"),
+   "values"=>array());
+```
+
+This array lets PhORM know the database layout for the table you are modeling.  After this is defined, you can call gets and sets on those columns.  For instance, if you want to set the id of the object: `$this->setId(<value>)`.  Likewise, if you want to get the id: `$this->getId()`
+#### Loading data
+AFter the database spec is defined, you need to load some data. There are a few ways to load data in PhORM. If you want a specific model, set the id and call `load()`
+```
+    $this->setId(1);
+    $this->load();
+```
+This sets the id, then PhORM looks for that specific id when it does a select.  If you want multiple objects based on a filter, all you need to do is set the filter items on the object and call load.  These are all ANDed together.
+
+```
+    //everyone with the name 'bob'
+    $this->setName('bob');
+    $results = $this->load();
+    // OR everyone with the name 'bob' and title 'foo'
+    $this->setName('bob');
+    $this->setTitle('foo');
+    $result = $this->load();
+    // OR freaking everything (no filters, do not recommend)
+    $result = $this->load();
+```
+
+If the result is one item, that item is set directly to the model you are working with.  If the result is multiple things, then `load` returns an array of those objects.
+
+#### Saving Data
+To save, it's as simple as calling `$this->save()` on the model you wish to persist.  If you have an array of like models, you can bulk save the whole thing by calling `$this->bulkSave($itemArray)`.  This function is preferable to calling save individually because it generates one statement to send to the databse and executes orders of magnitude faster.  
+
+If you call the individual `save()` function, the generated ID from the database is automatically set on the object.
+
+#### Extras
+If you need to clear database data off of your object, you can call `$this->clear()`.  Likewise, if you need to do a query that is a bit more complicated than a simple load (like dependency joins, etc), you can pass your custom SQL to `$this->query()`.  I've thought about including a framework for loading linked objects, but I haven't been able to think of a good way of doing it in a sufficiently generic enough way (so you have to do this manually for now).  The best way to do this is to find what you need, then loop over your results and assign them to new model objects and return the initialized objects.
+
+There is also a `toObject()` function that comes with PhORM objects that dumps a `stdObj` version of the database data for use with JSON conversions
+
+# Clustering and Session Management
+PholdBox is a bit unique in that it handles the session information, not PHP. The benefit here is that the session information is stored in the database, so you get application clustering for free.  You can have as many web nodes as you want and it doesn't matter which one services the request, your client will always have their information.
+
+### The Session
+The session object is built in to the PholdBoxBaseObj, so it should be available to all handlers and models that extend the base objects.  Everthing in the session is serialized, so you can store just about anything in there.  To set things into a session, call `$this->setSessionValue(<key>, <value>)`.  Values set this way are immediately persisted to the database.  To get something from the session, call `$this->getSessionValue(<key>)`
+
+
     
