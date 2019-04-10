@@ -27,7 +27,7 @@ Check the Releases section for the latest releases. Master may or may not be sta
 2. [config.php](#configphp)
     1. [Keys](#keys)
     1. [Example Config](#example-config)
-3. [Request Collection](#request-collection)
+3. [Request Collection](#request-collection-rc)
     1. [What is IN the RC?](#what-is-in-the-rc)
     2. [How do I access the RC?](#how-do-i-access-the-rc)
 4. [Handlers](#handlers)
